@@ -1,4 +1,5 @@
 package graphreduction;
+import java.util.ArrayList;
 
 /**
  * @author Luis Escutia, Yolanda Alvarez
@@ -7,7 +8,7 @@ package graphreduction;
 public class CGraph 
 {
     CNode m_BeginNode;
-    CNode m_EndNodes[];
+    ArrayList<CNode> m_EndNodes = new ArrayList<>();
     int m_iNumNodes;
     
     public CGraph()
@@ -41,7 +42,7 @@ public class CGraph
                 in_prev.m_pLeftNode = in_actual.m_pLeftNode;
                 in_actual = in_prev;
             }
-            else if ( !bActualhasDU && isSectionCodeEnds(in_actual) )
+            else if ( !bActualhasDU && doesSectionCodeEnds(in_actual) )
             {
                 in_prev.m_pLeftNode = in_actual.m_pLeftNode;
                 in_actual = in_prev;
@@ -65,12 +66,13 @@ public class CGraph
     *   @Param in_Node is the node that you're looking to identify if it's a dummy node.
     *   @Return true if the node is just to identify where does a section of code ends, otherwhise false.
     */
-    boolean isSectionCodeEnds( CNode in_Node )
+    boolean doesSectionCodeEnds( CNode in_Node )
     {
         return in_Node.instructionTypeExist( CNode.eLabels.RETURN ) ? true:
                 in_Node.instructionTypeExist( CNode.eLabels.ENDFOR ) ? true:
                     in_Node.instructionTypeExist( CNode.eLabels.ENDIF )? true:
-                        in_Node.instructionTypeExist( CNode.eLabels.ENDWHILE );
+                        in_Node.instructionTypeExist( CNode.eLabels.ENDWHILE ) ? true:
+                            in_Node.instructionTypeExist( CNode.eLabels.ENDELSE );
     }
     
     public void generateCoverageGraph()

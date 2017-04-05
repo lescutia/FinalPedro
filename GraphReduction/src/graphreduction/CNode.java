@@ -7,18 +7,18 @@ import java.util.ArrayList;
  */
 public class CNode 
 {
-    public enum eLabels{USE,DEF,RETURN,IF,ENDIF,WHILE,ENDWHILE,FOR,ENDFOR};
+    public enum eLabels{USE,DEF,RETURN,IF,ENDIF,WHILE,ENDWHILE,FOR,ENDFOR,ELSE,ENDELSE};
     
     /*< Variable with unique value to identify nodes. */
     int m_iID;
     /*< Enum to identify the instruction type. */
-    ArrayList<eLabels> m_eInstructionType;
+    ArrayList<eLabels> m_eLstInstructionsTypes;
     /*< string array of the defined variables. */
-    ArrayList<String> m_strDefs;
+    ArrayList<String> m_lstDefs;
     /*< string array of the used variables. */
-    ArrayList<String> m_strUses;
+    ArrayList<String> m_lstUses;
     /*< string array of code lines. */
-    ArrayList<String> m_strCodeLine;
+    ArrayList<String> m_lstCodeLines;
     /*< Pointer to the next node/default. */
     CNode m_pLeftNode;
     /*< In conditional case the next node. */
@@ -29,9 +29,9 @@ public class CNode
     public CNode()
     {
         m_bVisited = false;
-        m_strDefs = new ArrayList<>();
-        m_strUses = new ArrayList<>();
-        m_strCodeLine = new ArrayList<>();
+        m_lstDefs = new ArrayList<>();
+        m_lstUses = new ArrayList<>();
+        m_lstCodeLines = new ArrayList<>();
     }
     
     /*
@@ -39,16 +39,16 @@ public class CNode
     */
     public void concatenateDU(CNode in_Node)
     {
-        if( in_Node.m_strDefs.size() > 0 )
+        if( in_Node.m_lstDefs.size() > 0 )
         {
-            for( int i = 0; i < in_Node.m_strDefs.size(); i++ )
-                m_strDefs.add( in_Node.m_strDefs.get(i) );
+            for( int i = 0; i < in_Node.m_lstDefs.size(); i++ )
+                m_lstDefs.add(in_Node.m_lstDefs.get(i) );
         }
         
-        if( in_Node.m_strUses.size() > 0 )
+        if( in_Node.m_lstUses.size() > 0 )
         {
-            for( int i = 0; i < in_Node.m_strUses.size(); i++ )
-                m_strUses.add( in_Node.m_strUses.get(i) );
+            for( int i = 0; i < in_Node.m_lstUses.size(); i++ )
+                m_lstUses.add(in_Node.m_lstUses.get(i) );
         }
     }
     
@@ -58,8 +58,8 @@ public class CNode
     */
     public boolean instructionTypeExist( eLabels in_eLabelToCheck )
     {
-        for( int i = 0; i < m_eInstructionType.size(); i++ )
-            if( m_eInstructionType.get(i) == in_eLabelToCheck )
+        for( int i = 0; i < m_eLstInstructionsTypes.size(); i++ )
+            if( m_eLstInstructionsTypes.get(i) == in_eLabelToCheck )
                 return true;
         return false;
     }
