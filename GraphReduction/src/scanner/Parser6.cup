@@ -1,0 +1,460 @@
+package scanner;
+import java_cup.runtime.*;
+import java.util.*;
+
+/* The code below redefines method syntax_error to give better error messages
+ * than just "Syntax error"
+ */
+parser code {:
+public static void main(String args[]) throws Exception{
+		new parser(new Yylex(System.in)).parse();
+}
+public void syntax_error(Symbol s){
+System.out.println("Error en la linea "+(s.right+1)+"Columna"+s.left+" .Identificador "+s.value+" no reconocido ");
+}
+:}
+
+action code{:
+ArrayList<node> l=new ArrayList<node>();
+ArrayList<String> boolexp=new ArrayList<String>();
+LinkedList<node> list=new LinkedList<node>();
+node program;
+int contif=0;
+int label=0;
+
+:}
+
+
+/* Terminals (tokens returned by the scanner) */
+terminal  String INT, errorlex, FLOAR, MAIN, BOOL, COMA, VOID, TRUE, FALSE, STRUCT, CIN, COUT, IF, ELSE, WHILE, RETURN, ID, INTLITERAL, STRINGLITERAL, RCURLY, LCURLY,FLOAT, LPAREN,  RPAREN,SEMICOLON,COMMA,DOT,WRITE,READ,PLUSPLUS,MINUSMINUS,PLUS,MINUS,TIMES,DIVIDE,NOT,AND,OR,EQUALS,NOTEQUALS,LESS,GREATER,LESSEQ,GREATEREQ,ASSIGN;
+
+
+/* Nonterminals
+ *
+ * NOTE: You will need to add more nonterminals to this list as you
+ *       add productions to the grammar below.
+ */
+non terminal String   program;
+non terminal node   declList;
+non terminal String   decl;
+non terminal LinkedList<node>  varDeclList;
+non terminal node   varDeclList2;
+non terminal String   varDecl;
+non terminal String   fnDecl;
+non terminal String   structDecl;
+non terminal String   structBody;
+non terminal String   formals;
+non terminal String   formalsList;
+non terminal String   formalDecl;
+non terminal String   fnBody;
+non terminal String   mainbody;
+non terminal LinkedList<node>   stmtList;
+non terminal node   stmt;
+non terminal String   assignExp;
+non terminal String   exp;
+non terminal String   term;
+non terminal String   fncall;
+non terminal String    actualList;
+non terminal String   type;
+non terminal String   loc;
+non terminal String   id;
+non terminal String   programa;
+non terminal node   CIF1;
+non terminal node    CIF2;
+ 
+/* NOTE: Add precedence and associativity declarations here */
+precedence right ASSIGN;
+precedence left     LPAREN, RPAREN;
+precedence left OR;
+precedence left AND;
+precedence nonassoc EQUALS, NOTEQUALS, LESS, GREATER, LESSEQ, GREATEREQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
+precedence right NOT;
+
+start with program;
+
+
+/* Grammar with actions
+ *
+ * NOTE: add more grammar rules below
+ */
+
+
+program         ::= declList | declList mainbody
+                {:    :}
+                |errorlex {:System.out.println("errorlex");:};
+                
+/*-------------------------------------LISTA DE DECLARACIONES  ----------------------------- */
+declList        ::= declList:dl decl:d
+                {: RESULT=new node("");
+                   
+                :}
+                | /* epsilon */
+                {: 
+                :}
+                ;
+/*-------------------------------------DECLARACION   ----------------------------- */
+decl            ::= varDecl:v
+                {: RESULT=v;
+                :}
+                | fnDecl:f
+                {: RESULT=f;
+                :}
+                | structDecl:s
+                {: RESULT=s;
+                :}
+                ;
+/*-------------------------------------LISTA DE DECLARACION DE VARIABLES, ES GRAMATICA TIPO A->As|vacio  ----------------------------- */
+varDeclList     ::= varDeclList:vdl varDecl:vd
+                {: vdl.addLast(new node(vd));
+                   RESULT = vdl;
+                :}
+                | /* epsilon */
+                {: RESULT = new LinkedList<node>();
+                :}
+                ;
+/*-------------------------------------DECLARACION DE VARIABLES  ----------------------------- */
+varDecl         ::= type:t id:i SEMICOLON
+                {: RESULT = t+" "+i;
+                :}
+                | STRUCT id:t id:i SEMICOLON
+                {: 
+                :}
+                ;
+/*-------------------------------------DECLARACION DE FUNCIONES  ----------------------------- */
+fnDecl          ::= type:t id:i formals:f fnBody:fb
+                {: 
+                :}
+                ;
+
+structDecl      ::= STRUCT id:i LCURLY structBody:sb RCURLY SEMICOLON
+                {: 
+                :}
+                ;
+
+structBody      ::=  structBody:sb varDecl:vd 
+                {: 
+                   
+                :}
+                | varDecl:vd
+                {:
+                   
+                :}
+                ;
+/*-------------------------------------FUNCION  ----------------------------- */
+formals         ::= LPAREN RPAREN
+                {: 
+                :}
+                | LPAREN formalsList:fl RPAREN
+                {: 
+                :}
+                ;
+/*-------------------------------------CUERPO MAIN  ----------------------------- */
+mainbody ::= VOID MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl RETURN SEMICOLON RCURLY 
+                {: 
+                        vdl.addAll(sl);
+                        for(int i=0;i<vdl.size();i++){
+                        if(i>0){
+                            if(vdl.get(i-1).type==0)
+                            vdl.get(i-1).setLeft(vdl.get(i));
+                        }
+                        }
+                        program=vdl.get(0);
+                        list=vdl;
+
+                 :};
+
+/*-------------------------------------LISTA DE FORMULAS  ----------------------------- */
+formalsList     ::= formalDecl:fd
+                {: 
+                   RESULT=fd;
+
+
+                :}
+                | formalDecl:fd COMMA formalsList:fl
+                {: 
+                   RESULT=RESULT+fd;
+
+                    label++;
+                :}
+
+                ;
+
+formalDecl      ::= type:t id:i
+                {: RESULT="declare "+t+" "+i;
+
+                :}
+                ;
+
+fnBody          ::= LCURLY varDeclList:vdl stmtList:sl RCURLY
+                {: 
+                            
+                :}
+                ;
+/*-------------------------------------LISTA DE STATEMENTS, INSTRUCCIONES  ----------------------------- */
+stmtList        ::= stmtList:sl   stmt:s
+                {: 
+                   /*--------------  -------------------------*/
+                   sl.addLast(s);
+                   if(s.type==2){
+                    node union=new node("end if"+label);
+                    label++;
+                    s.lastLeft.left=union;
+                    s.lastRight.left=union;
+                    sl.add(union);
+                   }
+                   if(s.type==1){
+                    node union=new node("end if"+label);
+                    label++;
+                    s.lastLeft.left=union;
+                    s.right=union;
+                    sl.add(union);
+                   }
+                   if(s.type==3){
+                    node union=new node("end while"+label);
+                    label++;
+                    s.right=union;
+                    sl.add(union);
+                   }
+                   RESULT=sl;
+                   
+                :}
+                | /* epsilon */
+                {: 
+                   RESULT=new LinkedList<node>();
+                   label++;
+                :}
+                ;
+/*-------------------------------------INSTRUCCIONES  ----------------------------- */
+stmt            ::= assignExp:ae SEMICOLON
+                {: RESULT=new node(ae);
+                :}
+                | loc:lc PLUSPLUS SEMICOLON
+                {: 
+                    RESULT=new node(lc +"++");
+                :}
+                | loc:lc MINUSMINUS SEMICOLON
+                {: 
+                    RESULT=new node(lc+"--");
+                :}
+                | CIN READ loc:lc SEMICOLON
+                {: 
+                    RESULT=new node(" cin "+lc);
+                :}                
+                | COUT WRITE exp:e SEMICOLON
+                {:                   
+                    RESULT=new node(" cout "+e);
+                :}                
+                | CIF1:ii {: 
+                    RESULT=ii;label++;
+                :} 
+                | CIF2:ii
+                {: 
+                    RESULT=ii;
+                :}              
+                | WHILE LPAREN exp:e RPAREN LCURLY varDeclList:vdl stmtList:sl RCURLY
+                {: 
+                         boolexp.add(e);  
+                         vdl.addAll(sl);
+                         for(int i=0;i<vdl.size();i++){
+                              if(i>0){
+                                  if(vdl.get(i-1).type==0)
+                                  vdl.get(i-1).setLeft(vdl.get(i));
+                              }
+                         }
+                         RESULT=new node("WHILE "+e);
+                         RESULT.setLeft(vdl.get(0));
+                         RESULT.setType(3);
+                         vdl.get(vdl.size()-1).setLeft(RESULT);
+                :}                
+                | RETURN exp:e SEMICOLON
+                {: 
+                    RESULT=new node("return "+e);
+                :}
+                | RETURN SEMICOLON
+                {: 
+                :}
+                | fncall:f SEMICOLON
+                {: 
+                :}
+                ;   
+/*-------------------------------------IF SIN ELSE  ----------------------------- */
+CIF1 ::=   IF:ii   LPAREN exp:e RPAREN LCURLY  varDeclList:vdl stmtList:sl RCURLY
+{:                    
+                      boolexp.add(e);
+                      vdl.addAll(sl);
+                      for(int i=0;i<vdl.size();i++){
+                        if(i>0){
+                            if(vdl.get(i-1).type==0)
+                            vdl.get(i-1).setLeft(vdl.get(i));
+                        }
+                      }
+                      RESULT=new node("IF "+e);
+                      RESULT.setLeft(vdl.get(0));
+                      RESULT.setType(1);
+                      RESULT.lastLeft=vdl.get(vdl.size()-1);
+ 
+
+:};               
+/*-------------------------------------IF CON ELSE  ----------------------------- */
+CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURLY ELSE LCURLY varDeclList:vdle stmtList:sle RCURLY 
+                {:
+                        boolexp.add(e);
+                        vdlt.addAll(slt);
+                        vdle.addAll(sle);
+                        for(int i=0;i<vdlt.size();i++){
+                            if(i>0){
+                                if(vdlt.get(i-1).type==0)
+                                vdlt.get(i-1).setLeft(vdlt.get(i));
+                            }
+                        }
+                         for(int i=0;i<vdle.size();i++){
+                            if(i>0){
+                                if(vdle.get(i-1).type==0)
+                                vdle.get(i-1).setLeft(vdle.get(i));
+                            }
+                        }
+                        RESULT=new node("IF "+e);
+                        RESULT.setLeft(vdlt.get(0));
+                        RESULT.setRight(vdle.get(0));
+                        RESULT.lastLeft=vdlt.get(vdlt.size()-1);
+                        RESULT.lastRight=vdle.get(vdle.size()-1);
+                        RESULT.setType(2);
+
+
+                :};       
+/*-------------------------------------ASIGNACION  ----------------------------- */
+assignExp       ::= loc:lc ASSIGN exp:e
+                {: RESULT=lc+" -> "+e;
+                :}
+                ;
+/*-------------------------------------EXPRESIONES ----------------------------- */                
+exp             ::= assignExp:ae
+                {: RESULT=""+ae;
+                :}
+                | exp:e1 PLUS exp:e2
+                {: RESULT=e1+"+"+e2;
+                :}                
+                | exp:e1 MINUS exp:e2
+                {: RESULT=e1+"-"+e2;
+                :}                    
+                | exp:e1 TIMES exp:e2
+                {: RESULT=e1+"times"+e2;
+                :}    
+                | exp:e1 DIVIDE exp:e2
+                {: RESULT=e1+"/"+e2;
+                :}    
+                | NOT exp:e
+                {: RESULT="!"+e;
+                :}    
+                | exp:e1 AND exp:e2
+                {: RESULT=e1+"&&"+e2;
+                :}    
+                | exp:e1 OR exp:e2
+                {: RESULT=e1+"||"+e2;
+                :}    
+                | exp:e1 EQUALS exp:e2
+                {: RESULT=e1+"=="+e2;
+                :}    
+                | exp:e1 NOTEQUALS exp:e2
+                {: RESULT=e1+"!="+e2;
+                :}    
+                | exp:e1 LESS exp:e2
+                {: RESULT=e1+"<"+e2;
+                :}    
+                | exp:e1 GREATER exp:e2
+                {: RESULT=e1+">"+e2;
+                :}    
+                | exp:e1 LESSEQ exp:e2
+                {: RESULT=e1+"<="+e2;
+                :}    
+                | exp:e1 GREATEREQ exp:e2
+                {: RESULT=e1+">="+e2;
+                :}    
+                | MINUS exp:e
+                {: RESULT="-"+e;
+                :}    
+                | term:t
+                {: 
+                    RESULT= t;
+                 
+                :}
+                ;    
+/*-------------------------------------TERMINOS  ----------------------------- */                
+term            ::= loc:lc
+                {: RESULT=""+lc;
+                :}
+                | INTLITERAL:i
+                {: 
+                RESULT=i;
+                :}
+                | STRINGLITERAL:s
+                {: RESULT=s;
+                :}
+                | TRUE:t
+                {: RESULT="TRUE";
+                :}
+                | FALSE:f
+                {: RESULT="FALSE";
+                :}
+                | LPAREN exp:e RPAREN
+                {: 
+                    RESULT="("+e+")";
+                :}
+                | fncall:f
+                {: RESULT=""+f;
+                :}
+                ;    
+/*-------------------------------------LLAMADA A FUNCIÓN  ----------------------------- */
+fncall          ::= id:i LPAREN RPAREN
+                {: 
+                                
+                :}
+                | id:i LPAREN actualList:al RPAREN
+                {: 
+                :}
+                ;
+                
+actualList      ::= exp:e
+                {: 
+                   RESULT=e;
+
+                :}
+                | actualList:al COMMA exp:e
+                {:
+                   RESULT=RESULT+e;
+
+                :}
+                ;
+/*-------------------------------------TIPO  ----------------------------- */
+type            ::= INT:t
+                {: 
+                RESULT="int";
+                :}
+                | BOOL:t
+                {: 
+                RESULT="boolean";
+                :}
+                | VOID:t
+                {: RESULT="void";
+                :}
+                 | FLOAT:t
+                {: RESULT="float";
+                :}         
+                ;
+/*-------------------------------------LOC  ----------------------------- */
+loc             ::= id:i
+                {: RESULT=""+i;
+
+                :}
+                | loc:lc DOT id:i
+                {: 
+                :}
+                ;
+/*-------------------------------------ID  ----------------------------- */                
+id              ::= ID:i
+                {: RESULT=i;
+
+                :}
+                ;
