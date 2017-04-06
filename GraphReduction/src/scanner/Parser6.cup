@@ -19,15 +19,20 @@ action code{:
 ArrayList<CNode> l=new ArrayList<CNode>();
 ArrayList<String> boolexp=new ArrayList<String>();
 LinkedList<CNode> list=new LinkedList<CNode>();
+LinkedList<CNode> breakList=new LinkedList<CNode>();
+Stack <String> whileNames =new Stack<String>();
+String actualWhile="";
+
 CNode program;
 int contif=0;
 int label=0;
+int whileLabel=0;
 
 :}
 
 
 /* Terminals (tokens returned by the scanner) */
-terminal  String INT, errorlex, FLOAR, MAIN, BOOL, COMA, VOID, TRUE, FALSE, STRUCT, CIN, COUT, IF, ELSE, WHILE, RETURN, ID, INTLITERAL, STRINGLITERAL, RCURLY, LCURLY,FLOAT, LPAREN,  RPAREN,SEMICOLON,COMMA,DOT,WRITE,READ,PLUSPLUS,MINUSMINUS,PLUS,MINUS,TIMES,DIVIDE,NOT,AND,OR,EQUALS,NOTEQUALS,LESS,GREATER,LESSEQ,GREATEREQ,ASSIGN;
+terminal  String INT, errorlex, FLOAR, MAIN, FOR, BOOL, COMA, VOID, TRUE, FALSE, STRUCT, CIN, COUT, IF, ELSE, WHILE, RETURN, ID, INTLITERAL, STRINGLITERAL, RCURLY, LCURLY,FLOAT, LPAREN,  RPAREN,SEMICOLON,COMMA,DOT,WRITE,READ,PLUSPLUS,MINUSMINUS,PLUS,MINUS,TIMES,DIVIDE,NOT,AND,OR,EQUALS,NOTEQUALS,LESS,GREATER,LESSEQ,GREATEREQ,ASSIGN,BREAK;
 
 
 /* Nonterminals
@@ -156,10 +161,10 @@ mainbody ::= VOID MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl RETURN
                 {: 
                         vdl.addAll(sl);
                         for(int i=0;i<vdl.size();i++){
-                        if(i>0){
-                            if(vdl.get(i-1).getType()==0)
-                            vdl.get(i-1).setLeft(vdl.get(i));
-                        }
+                            if(i>0){
+                                if(vdl.get(i-1).getType()==0)
+                                vdl.get(i-1).setLeft(vdl.get(i));
+                            }
                         }
                         program=vdl.get(0);
                         list=vdl;
@@ -213,10 +218,24 @@ stmtList        ::= stmtList:sl   stmt:s
                     sl.add(union);
                    }
                    if(s.getType()==3){
-                    CNode union=new CNode("end while"+label);
-                    label++;
+                    String thisWhile="";
+                        if (!whileNames.isEmpty()){
+                            thisWhile=whileNames.pop();
+                            actualWhile=whileNames.peek();
+                         }
+                    CNode union=new CNode("end "+thisWhile);
                     s.m_pRightNode=union;
                     sl.add(union);
+                     /*MANDO LOS PUNTEROS DE LOS BREAKS AL FINAL DEL WHILE, al nodo UNION*/
+                         if(breakList.size()>0){
+                            for(int i=0;i<breakList.size();i++){
+                                    CNode actualBreak=breakList.get(i);
+                                    if(actualBreak.getSingleCodeLine().contains(thisWhile)){
+                                        actualBreak.m_pLeftNode=union;  
+                                    }
+                            }
+
+                         }
                    }
                    RESULT=sl;
                    
@@ -254,10 +273,14 @@ stmt            ::= assignExp:ae SEMICOLON
                 {: 
                     RESULT=ii;
                 :}              
-                | WHILE LPAREN exp:e RPAREN LCURLY varDeclList:vdl stmtList:sl RCURLY
+                | WHILE:a {:a="while"+whileLabel; actualWhile=a; whileLabel++; whileNames.push(a);:} LPAREN exp:e RPAREN LCURLY varDeclList:vdl stmtList:sl RCURLY
                 {: 
+
+                        
                          boolexp.add(e);  
+                         /*UNO LA LISTA DE VARDECL Y STMTLIST*/
                          vdl.addAll(sl);
+                         /*UNO TODOS LOS NODOS DEL LIST*/
                          for(int i=0;i<vdl.size();i++){
                               if(i>0){
                                   if(vdl.get(i-1).getType()==0)
@@ -272,6 +295,12 @@ stmt            ::= assignExp:ae SEMICOLON
                 | RETURN exp:e SEMICOLON
                 {: 
                     RESULT=new CNode("return "+e);
+                :}
+                | BREAK SEMICOLON
+                {: 
+                    RESULT=new CNode("break "+actualWhile);
+                    RESULT.setType(4);
+                    breakList.addLast(RESULT);
                 :}
                 | RETURN SEMICOLON
                 {: 
@@ -341,7 +370,7 @@ exp             ::= assignExp:ae
                 {: RESULT=e1+"-"+e2;
                 :}                    
                 | exp:e1 TIMES exp:e2
-                {: RESULT=e1+"times"+e2;
+                {: RESULT=e1+"*"+e2;
                 :}    
                 | exp:e1 DIVIDE exp:e2
                 {: RESULT=e1+"/"+e2;
@@ -350,10 +379,10 @@ exp             ::= assignExp:ae
                 {: RESULT="!"+e;
                 :}    
                 | exp:e1 AND exp:e2
-                {: RESULT=e1+"&&"+e2;
+                {: RESULT=e1+"&"+e2;
                 :}    
                 | exp:e1 OR exp:e2
-                {: RESULT=e1+"||"+e2;
+                {: RESULT=e1+"|"+e2;
                 :}    
                 | exp:e1 EQUALS exp:e2
                 {: RESULT=e1+"=="+e2;

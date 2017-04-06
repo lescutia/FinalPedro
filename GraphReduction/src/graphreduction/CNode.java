@@ -35,6 +35,8 @@ public class CNode
     boolean for make the graph
     */
     public boolean m_GExplored=false;
+    /*if the node is breakNode, i need this*/
+    public boolean breakRedirect=false;
     /**
      * constructor
      */

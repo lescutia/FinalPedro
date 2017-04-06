@@ -24,8 +24,9 @@ public class Entorno extends javax.swing.JFrame {
     /**
      * Creates new form Entorno
      */
-    JEditTextArea je= new JEditTextArea();
+    JEditTextArea je = new JEditTextArea();
     parser p;
+
     public Entorno() {
         initComponents();
         je.setTokenMarker(new CTokenMarker());
@@ -114,53 +115,61 @@ public class Entorno extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             // TODO add your handling code here:
-            String Cadena= je.getText();
-            p=new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
+            String Cadena = je.getText();
+            p = new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
             p.parse();
 
-            String exps=p.action_obj.boolexp.toString();
-            CNode nod=p.action_obj.program;
+            String exps = p.action_obj.boolexp.toString();
+            CNode nod = p.action_obj.program;
             explore(nod);
             JOptionPane.showMessageDialog(null, exps);
         } catch (Exception ex) {
-           // Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
+            // Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
-    ArrayList<String> added=new ArrayList<String>();
-    public void explore(CNode n){
-        if(n.m_pLeftNode!=null&&!n.m_GExplored){
-                String msj="\""+n.getSingleCodeLine().replaceAll("\"", "")+"\" -> \""+n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "")+"\"";
-                boolean band=false;
-                for(int i=0;i<added.size();i++){
-                    if(msj.equals(added.get(i))){
-                        band=true;
-                        break;
-                    }
+    ArrayList<String> added = new ArrayList<String>();
+
+    public void explore(CNode n) {
+        if (n.m_pLeftNode != null && !n.m_GExplored) {
+            String msj;
+            if (n.getType() != 0) {
+                msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + "\"[ label = \"SI\" ]";
+            } else {
+                msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + "\"";
+            }
+            boolean band = false;
+            for (int i = 0; i < added.size(); i++) {
+                if (msj.equals(added.get(i))) {
+                    band = true;
+                    break;
                 }
-                added.add(msj);
-                if(!band){
+            }
+            added.add(msj);
+            if (!band) {
                 System.out.println(msj);
-                }
-                n.m_GExplored=true;
-                explore(n.m_pLeftNode);
+            }
+            n.m_GExplored = true;
+            explore(n.m_pLeftNode);
         }
-         if(n.m_pRightNode!=null){
-                String msj="\""+n.getSingleCodeLine().replaceAll("\"", "")+"\" -> \""+n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "")+"\"";
-                boolean band=false;
-                for(int i=0;i<added.size();i++){
-                    if(msj.equals(added.get(i))){
-                        band=true;
-                        break;
-                    }
+        if (n.m_pRightNode != null) {
+            String msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + "\"[ label = \"NO\" ]";
+            boolean band = false;
+            for (int i = 0; i < added.size(); i++) {
+                if (msj.equals(added.get(i))) {
+                    band = true;
+                    break;
                 }
-                added.add(msj);
-                if(!band){
+            }
+            added.add(msj);
+            if (!band) {
                 System.out.println(msj);
-                }
-                n.m_GExplored=true;
-                explore(n.m_pRightNode);
+            }
+            n.m_GExplored = true;
+            explore(n.m_pRightNode);
         }
+        
     }
+
     /**
      * @param args the command line arguments
      */

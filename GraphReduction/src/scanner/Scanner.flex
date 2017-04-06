@@ -94,6 +94,8 @@ return new Symbol(sym.EOF);
 "struct"  {return new Symbol(sym.STRUCT, yychar, yyline);}
 
 "cin"     {return new Symbol(sym.CIN, yychar, yyline);}
+
+"for"     {return new Symbol(sym.FOR, yychar, yyline);}
           
 "cout"   {return new Symbol(sym.COUT, yychar, yyline);}
           
@@ -104,6 +106,8 @@ return new Symbol(sym.EOF);
 "while"   {return new Symbol(sym.WHILE, yychar, yyline);}
           
 "return"  {return new Symbol(sym.RETURN, yychar, yyline);}
+
+"break"  {return new Symbol(sym.BREAK, yychar, yyline);}
           
 ({LETTER}|"_")({LETTER}|{DIGIT}|"_")* {
             {return new Symbol(sym.ID, yychar, yyline, new String(yytext()));}
@@ -140,14 +144,14 @@ return new Symbol(sym.EOF);
 "{"       {return new Symbol(sym.LCURLY, yychar, yyline);}
 
 "}"       {return new Symbol(sym.RCURLY, yychar, yyline);}
-          +++++++++++++++++++++++++++++
+
 "("       {return new Symbol(sym.LPAREN, yychar, yyline);}
 
 ")"       {return new Symbol(sym.RPAREN, yychar, yyline);}
 
 ";"       {return new Symbol(sym.SEMICOLON, yychar, yyline);}
           
-","       {return new Symbol(sym.COMA, yychar, yyline);}++++++++++++++++++++++++++++++++++       
+","       {return new Symbol(sym.COMA, yychar, yyline);}     
           
 "."      {return new Symbol(sym.DOT, yychar, yyline);}        
           
