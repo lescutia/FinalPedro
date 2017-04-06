@@ -5,6 +5,7 @@
  */
 package scanner;
 
+import graphreduction.CNode;
 import highlight.CTokenMarker;
 import highlight.JEditTextArea;
 import java.io.BufferedReader;
@@ -118,7 +119,7 @@ public class Entorno extends javax.swing.JFrame {
             p.parse();
 
             String exps=p.action_obj.boolexp.toString();
-            node nod=p.action_obj.program;
+            CNode nod=p.action_obj.program;
             explore(nod);
             JOptionPane.showMessageDialog(null, exps);
         } catch (Exception ex) {
@@ -126,9 +127,9 @@ public class Entorno extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
     ArrayList<String> added=new ArrayList<String>();
-    public void explore(node n){
-        if(n.left!=null&&!n.explored){
-                String msj="\""+n.cont.replaceAll("\"", "")+"\" -> \""+n.left.cont.replaceAll("\"", "")+"\"";
+    public void explore(CNode n){
+        if(n.m_pLeftNode!=null&&!n.m_GExplored){
+                String msj="\""+n.getSingleCodeLine().replaceAll("\"", "")+"\" -> \""+n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "")+"\"";
                 boolean band=false;
                 for(int i=0;i<added.size();i++){
                     if(msj.equals(added.get(i))){
@@ -140,11 +141,11 @@ public class Entorno extends javax.swing.JFrame {
                 if(!band){
                 System.out.println(msj);
                 }
-                n.explored=true;
-                explore(n.left);
+                n.m_GExplored=true;
+                explore(n.m_pLeftNode);
         }
-         if(n.right!=null){
-                String msj="\""+n.cont.replaceAll("\"", "")+"\" -> \""+n.right.cont.replaceAll("\"", "")+"\"";
+         if(n.m_pRightNode!=null){
+                String msj="\""+n.getSingleCodeLine().replaceAll("\"", "")+"\" -> \""+n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "")+"\"";
                 boolean band=false;
                 for(int i=0;i<added.size();i++){
                     if(msj.equals(added.get(i))){
@@ -156,8 +157,8 @@ public class Entorno extends javax.swing.JFrame {
                 if(!band){
                 System.out.println(msj);
                 }
-                n.explored=true;
-                explore(n.right);
+                n.m_GExplored=true;
+                explore(n.m_pRightNode);
         }
     }
     /**

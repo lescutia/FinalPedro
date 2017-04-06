@@ -1,6 +1,7 @@
 package scanner;
 import java_cup.runtime.*;
 import java.util.*;
+import graphreduction.*;
 
 /* The code below redefines method syntax_error to give better error messages
  * than just "Syntax error"
@@ -15,10 +16,10 @@ System.out.println("Error en la linea "+(s.right+1)+"Columna"+s.left+" .Identifi
 :}
 
 action code{:
-ArrayList<node> l=new ArrayList<node>();
+ArrayList<CNode> l=new ArrayList<CNode>();
 ArrayList<String> boolexp=new ArrayList<String>();
-LinkedList<node> list=new LinkedList<node>();
-node program;
+LinkedList<CNode> list=new LinkedList<CNode>();
+CNode program;
 int contif=0;
 int label=0;
 
@@ -35,10 +36,10 @@ terminal  String INT, errorlex, FLOAR, MAIN, BOOL, COMA, VOID, TRUE, FALSE, STRU
  *       add productions to the grammar below.
  */
 non terminal String   program;
-non terminal node   declList;
+non terminal CNode   declList;
 non terminal String   decl;
-non terminal LinkedList<node>  varDeclList;
-non terminal node   varDeclList2;
+non terminal LinkedList<CNode>  varDeclList;
+non terminal CNode   varDeclList2;
 non terminal String   varDecl;
 non terminal String   fnDecl;
 non terminal String   structDecl;
@@ -48,8 +49,8 @@ non terminal String   formalsList;
 non terminal String   formalDecl;
 non terminal String   fnBody;
 non terminal String   mainbody;
-non terminal LinkedList<node>   stmtList;
-non terminal node   stmt;
+non terminal LinkedList<CNode>   stmtList;
+non terminal CNode   stmt;
 non terminal String   assignExp;
 non terminal String   exp;
 non terminal String   term;
@@ -59,8 +60,8 @@ non terminal String   type;
 non terminal String   loc;
 non terminal String   id;
 non terminal String   programa;
-non terminal node   CIF1;
-non terminal node    CIF2;
+non terminal CNode   CIF1;
+non terminal CNode    CIF2;
  
 /* NOTE: Add precedence and associativity declarations here */
 precedence right ASSIGN;
@@ -87,7 +88,7 @@ program         ::= declList | declList mainbody
                 
 /*-------------------------------------LISTA DE DECLARACIONES  ----------------------------- */
 declList        ::= declList:dl decl:d
-                {: RESULT=new node("");
+                {: RESULT=new CNode("");
                    
                 :}
                 | /* epsilon */
@@ -107,11 +108,11 @@ decl            ::= varDecl:v
                 ;
 /*-------------------------------------LISTA DE DECLARACION DE VARIABLES, ES GRAMATICA TIPO A->As|vacio  ----------------------------- */
 varDeclList     ::= varDeclList:vdl varDecl:vd
-                {: vdl.addLast(new node(vd));
+                {: vdl.addLast(new CNode(vd));
                    RESULT = vdl;
                 :}
                 | /* epsilon */
-                {: RESULT = new LinkedList<node>();
+                {: RESULT = new LinkedList<CNode>();
                 :}
                 ;
 /*-------------------------------------DECLARACION DE VARIABLES  ----------------------------- */
@@ -156,7 +157,7 @@ mainbody ::= VOID MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl RETURN
                         vdl.addAll(sl);
                         for(int i=0;i<vdl.size();i++){
                         if(i>0){
-                            if(vdl.get(i-1).type==0)
+                            if(vdl.get(i-1).getType()==0)
                             vdl.get(i-1).setLeft(vdl.get(i));
                         }
                         }
@@ -197,24 +198,24 @@ stmtList        ::= stmtList:sl   stmt:s
                 {: 
                    /*--------------  -------------------------*/
                    sl.addLast(s);
-                   if(s.type==2){
-                    node union=new node("end if"+label);
+                   if(s.getType()==2){
+                    CNode union=new CNode("end if"+label);
                     label++;
-                    s.lastLeft.left=union;
-                    s.lastRight.left=union;
+                    s.m_lastLeft.m_pLeftNode=union;
+                    s.m_lastRight.m_pLeftNode=union;
                     sl.add(union);
                    }
-                   if(s.type==1){
-                    node union=new node("end if"+label);
+                   if(s.getType()==1){
+                    CNode union=new CNode("end if"+label);
                     label++;
-                    s.lastLeft.left=union;
-                    s.right=union;
+                    s.m_lastLeft.m_pLeftNode=union;
+                    s.m_pRightNode=union;
                     sl.add(union);
                    }
-                   if(s.type==3){
-                    node union=new node("end while"+label);
+                   if(s.getType()==3){
+                    CNode union=new CNode("end while"+label);
                     label++;
-                    s.right=union;
+                    s.m_pRightNode=union;
                     sl.add(union);
                    }
                    RESULT=sl;
@@ -222,29 +223,29 @@ stmtList        ::= stmtList:sl   stmt:s
                 :}
                 | /* epsilon */
                 {: 
-                   RESULT=new LinkedList<node>();
+                   RESULT=new LinkedList<CNode>();
                    label++;
                 :}
                 ;
 /*-------------------------------------INSTRUCCIONES  ----------------------------- */
 stmt            ::= assignExp:ae SEMICOLON
-                {: RESULT=new node(ae);
+                {: RESULT=new CNode(ae);
                 :}
                 | loc:lc PLUSPLUS SEMICOLON
                 {: 
-                    RESULT=new node(lc +"++");
+                    RESULT=new CNode(lc +"++");
                 :}
                 | loc:lc MINUSMINUS SEMICOLON
                 {: 
-                    RESULT=new node(lc+"--");
+                    RESULT=new CNode(lc+"--");
                 :}
                 | CIN READ loc:lc SEMICOLON
                 {: 
-                    RESULT=new node(" cin "+lc);
+                    RESULT=new CNode(" cin "+lc);
                 :}                
                 | COUT WRITE exp:e SEMICOLON
                 {:                   
-                    RESULT=new node(" cout "+e);
+                    RESULT=new CNode(" cout "+e);
                 :}                
                 | CIF1:ii {: 
                     RESULT=ii;label++;
@@ -259,18 +260,18 @@ stmt            ::= assignExp:ae SEMICOLON
                          vdl.addAll(sl);
                          for(int i=0;i<vdl.size();i++){
                               if(i>0){
-                                  if(vdl.get(i-1).type==0)
+                                  if(vdl.get(i-1).getType()==0)
                                   vdl.get(i-1).setLeft(vdl.get(i));
                               }
                          }
-                         RESULT=new node("WHILE "+e);
+                         RESULT=new CNode("WHILE "+e);
                          RESULT.setLeft(vdl.get(0));
                          RESULT.setType(3);
                          vdl.get(vdl.size()-1).setLeft(RESULT);
                 :}                
                 | RETURN exp:e SEMICOLON
                 {: 
-                    RESULT=new node("return "+e);
+                    RESULT=new CNode("return "+e);
                 :}
                 | RETURN SEMICOLON
                 {: 
@@ -286,14 +287,14 @@ CIF1 ::=   IF:ii   LPAREN exp:e RPAREN LCURLY  varDeclList:vdl stmtList:sl RCURL
                       vdl.addAll(sl);
                       for(int i=0;i<vdl.size();i++){
                         if(i>0){
-                            if(vdl.get(i-1).type==0)
+                            if(vdl.get(i-1).getType()==0)
                             vdl.get(i-1).setLeft(vdl.get(i));
                         }
                       }
-                      RESULT=new node("IF "+e);
+                      RESULT=new CNode("IF "+e);
                       RESULT.setLeft(vdl.get(0));
                       RESULT.setType(1);
-                      RESULT.lastLeft=vdl.get(vdl.size()-1);
+                      RESULT.setLastLeft(vdl.get(vdl.size()-1));
  
 
 :};               
@@ -305,21 +306,21 @@ CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURL
                         vdle.addAll(sle);
                         for(int i=0;i<vdlt.size();i++){
                             if(i>0){
-                                if(vdlt.get(i-1).type==0)
+                                if(vdlt.get(i-1).getType()==0)
                                 vdlt.get(i-1).setLeft(vdlt.get(i));
                             }
                         }
                          for(int i=0;i<vdle.size();i++){
                             if(i>0){
-                                if(vdle.get(i-1).type==0)
+                                if(vdle.get(i-1).getType()==0)
                                 vdle.get(i-1).setLeft(vdle.get(i));
                             }
                         }
-                        RESULT=new node("IF "+e);
+                        RESULT=new CNode("IF "+e);
                         RESULT.setLeft(vdlt.get(0));
                         RESULT.setRight(vdle.get(0));
-                        RESULT.lastLeft=vdlt.get(vdlt.size()-1);
-                        RESULT.lastRight=vdle.get(vdle.size()-1);
+                        RESULT.setLastLeft(vdlt.get(vdlt.size()-1));
+                        RESULT.setLastRight(vdle.get(vdle.size()-1));
                         RESULT.setType(2);
 
 

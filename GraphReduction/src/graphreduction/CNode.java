@@ -20,12 +20,24 @@ public class CNode
     /*< string array of code lines. */
     ArrayList<String> m_lstCodeLines;
     /*< Pointer to the next node/default. */
-    CNode m_pLeftNode;
+    public CNode m_pLeftNode;
     /*< In conditional case the next node. */
-    CNode m_pRightNode;
+    public CNode m_pRightNode;
     /*< variable to know if a node was already visited. */
     boolean m_bVisited;
-    
+    /*is used for make the graph, only team 1 use this variables*/
+    public CNode m_lastLeft;
+    /*is used for make the graph, only team 1 use this variables*/
+    public CNode m_lastRight;
+    /*Used to identify in the parser the type of node, only is used for make the graph*/
+    int m_nType;
+    /*
+    boolean for make the graph
+    */
+    public boolean m_GExplored=false;
+    /**
+     * constructor
+     */
     public CNode()
     {
         m_bVisited = false;
@@ -33,8 +45,34 @@ public class CNode
         m_lstUses = new ArrayList<>();
         m_lstCodeLines = new ArrayList<>();
     }
+    /**
+     * constructor used in the parser
+     * @param id
+     * @param codeLine 
+     */
+    public CNode(int id, String codeLine)
+    {
+        m_bVisited = false;
+        m_lstDefs = new ArrayList<>();
+        m_lstUses = new ArrayList<>();
+        m_lstCodeLines = new ArrayList<>();
+        m_iID=id;
+        m_lstCodeLines.add(codeLine);
+    }
+    /**
+     * constructor without ID
+     * @param codeLine 
+     */
+     public CNode(String codeLine)
+    {
+        m_bVisited = false;
+        m_lstDefs = new ArrayList<>();
+        m_lstUses = new ArrayList<>();
+        m_lstCodeLines = new ArrayList<>();
+        m_lstCodeLines.add(codeLine);
+    }
     
-    /*
+    /**
     *   @Param in_Node is the element wanted to conccatenate with the actual node.
     */
     public void concatenateDU(CNode in_Node)
@@ -62,5 +100,58 @@ public class CNode
             if( m_eLstInstructionsTypes.get(i) == in_eLabelToCheck )
                 return true;
         return false;
+    }
+    /**
+     * set the left node
+     * @param left 
+     */
+    public void setLeft(CNode left){
+        m_pLeftNode=left;
+    }
+    /**
+     * set the right node
+     * @param right 
+     */
+    public void setRight(CNode right){
+        m_pRightNode=right;
+    }
+    /*set lastLeft node*/
+    public void setLastLeft(CNode lastLeft){
+        m_lastLeft=lastLeft;
+    }
+
+    public int getType(){
+        return m_nType;
+    }
+
+    /*set lastRight node*/
+    
+    /**
+     * for making the graph i need this
+     * don´t touch, i see you
+     * @param m_nType 
+     */
+    public void setType(int m_nType) {
+        this.m_nType = m_nType;
+    }
+
+    public void setLastRight(CNode lastRight) {
+        m_lastRight=lastRight;
+    }
+    /**
+     * Add code line from the Parser
+     * @param codeLine 
+     */
+    public void addCodeLine(String codeLine){
+        m_lstCodeLines.add(codeLine);
+    }
+    
+    public String getSingleCodeLine(){
+        if(m_lstCodeLines.size()>0){
+            return m_lstCodeLines.get(0);
+        }
+        else{
+            return "";
+        }
     }
 }
