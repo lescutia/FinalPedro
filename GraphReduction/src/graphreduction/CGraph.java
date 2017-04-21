@@ -16,6 +16,20 @@ public class CGraph
         
     }
     
+    public void increaseNumNodes(){ m_iNumNodes++; }
+    
+    public void addBeginNode( CNode in_BeginNode )
+    {
+        m_BeginNode = in_BeginNode;
+        m_iNumNodes++;
+    }
+    
+    public void addEndNode( CNode in_EndNode )
+    {
+        m_EndNodes.add(in_EndNode);
+        m_iNumNodes++;
+    }
+    
     public void compressNodes()
     {
         boolean bActualhasDU = getDU( m_BeginNode );

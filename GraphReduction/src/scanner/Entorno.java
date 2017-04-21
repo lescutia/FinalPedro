@@ -5,12 +5,18 @@
  */
 package scanner;
 
+import graphreduction.CGraph;
+import graphreduction.CGraphManager;
 import graphreduction.CNode;
 import highlight.CTokenMarker;
 import highlight.JEditTextArea;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -111,18 +117,35 @@ public class Entorno extends javax.swing.JFrame {
         // TODO add your handling code here:
         je.paste();
     }//GEN-LAST:event_jButton1ActionPerformed
-
+    String msj = "";
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
+            msj = "";
             // TODO add your handling code here:
             String Cadena = je.getText();
             p = new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
             p.parse();
+            // CGraph tmpGrpah = CGraphManager.getGraph("funcion");
 
             String exps = p.action_obj.boolexp.toString();
             CNode nod = p.action_obj.program;
+            msj = msj + "digraph G {\nnode [style=filled];\n";
             explore(nod);
+
+            LinkedList<CNode> fn = p.action_obj.fnList;
+            for (CNode c : fn) {
+
+                explore(c);
+
+            }
+            msj = msj + "}";
+            StringSelection stringSelection = new StringSelection(msj);
+            Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clpbrd.setContents(stringSelection, null);
+            System.out.println(msj);
             JOptionPane.showMessageDialog(null, exps);
+            added.clear();
+            
         } catch (Exception ex) {
             // Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -131,43 +154,64 @@ public class Entorno extends javax.swing.JFrame {
 
     public void explore(CNode n) {
         if (n.m_pLeftNode != null && !n.m_GExplored) {
-            String msj;
+            if(n.getSingleCodeLine().contains("function")){
+                n.setType(7);
+            }
+            if(n.m_pLeftNode.getSingleCodeLine().contains("end function")){
+                n.m_pLeftNode.setType(9);
+            }
+            // n.m_pLeftNode.addParent();
+            String m;
             if (n.getType() != 0) {
-                msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + "\"[ label = \"SI\" ]";
+                m="\""+ n.getId()+" .. "+ n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId()+" .. "+n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\"[ label = \"SI\" ] \n";
+                String color="[color=goldenrod3]";
+                //[color=\"0.650 0.200 1.000\"]
+                if(n.getType()==7){
+                    color="[color=lemonchiffon2]";
+                }
+                if(n.getType()==6){
+                    color="[color=lightsteelblue1]";
+                }
+                if(n.getType()==9){
+                    color="[color=cadetblue1]";
+                }
+                msj =msj + "\"" + n.getId()+" .. "+n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString()+"\"[shape=box]"+color+"\n";
+               
             } else {
-                msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + "\"";
+                m= "\"" +n.getId()+" .. "+ n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" +n.m_pLeftNode.getId()+" .. "+ n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\" \n";
             }
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
-                if (msj.equals(added.get(i))) {
+                if (m.equals(added.get(i))) {
                     band = true;
                     break;
                 }
             }
-            added.add(msj);
+            added.add(m);
             if (!band) {
-                System.out.println(msj);
+                msj = msj + m;
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
         }
         if (n.m_pRightNode != null) {
-            String msj = "\"" + n.getSingleCodeLine().replaceAll("\"", "") + "\" -> \"" + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + "\"[ label = \"NO\" ]";
+            String m="\"" + n.getId()+" .. "+n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" +n.m_pRightNode.getId()+" .. "+ n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pRightNode.m_lstUses.toString() + "  defs :" + n.m_pRightNode.m_lstDefs.toString() + "\"[ label = \"NO\" ] \n";
+            
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
-                if (msj.equals(added.get(i))) {
+                if (m.equals(added.get(i))) {
                     band = true;
                     break;
                 }
             }
-            added.add(msj);
+            added.add(m);
             if (!band) {
-                System.out.println(msj);
+                msj = msj + m;
             }
             n.m_GExplored = true;
             explore(n.m_pRightNode);
         }
-        
+
     }
 
     /**

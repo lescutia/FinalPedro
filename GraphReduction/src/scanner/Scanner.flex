@@ -98,6 +98,8 @@ return new Symbol(sym.EOF);
 "for"     {return new Symbol(sym.FOR, yychar, yyline);}
           
 "cout"   {return new Symbol(sym.COUT, yychar, yyline);}
+
+"continue"   {return new Symbol(sym.CONTINUE, yychar, yyline);}
           
 "if"      {return new Symbol(sym.IF, yychar, yyline);}
           
