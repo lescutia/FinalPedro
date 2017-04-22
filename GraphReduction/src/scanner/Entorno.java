@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import logic.TruthTable;
 
 /**
  *
@@ -37,7 +38,11 @@ public class Entorno extends javax.swing.JFrame {
         initComponents();
         je.setTokenMarker(new CTokenMarker());
         je.setVisible(true);
-        je.setSize(800, 800);
+        je.setSize(800, 500);
+        je.setCaretBlinkEnabled(true);
+        je.setElectricScroll(ERROR);
+        je.setHorizontalOffset(10);
+        je.setOverwriteEnabled(true);
         jPanel1.add(je);
     }
 
@@ -118,67 +123,73 @@ public class Entorno extends javax.swing.JFrame {
         je.paste();
     }//GEN-LAST:event_jButton1ActionPerformed
     String msj = "";
+   // CGraphManager manager=new CGraphManager();
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             msj = "";
             // TODO add your handling code here:
             String Cadena = je.getText();
+            /*ESTA CHINGADERILLA DE CÓDIGO ME SIRVE PARA JALAR EL TEXTO Y QUE LO ANALIZE EL PARSER*/
             p = new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
             p.parse();
             // CGraph tmpGrpah = CGraphManager.getGraph("funcion");
-
+            /*MORRO, BOOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
+            
             String exps = p.action_obj.boolexp.toString();
             CNode nod = p.action_obj.program;
             msj = msj + "digraph G {\nnode [style=filled];\n";
             explore(nod);
 
-            LinkedList<CNode> fn = p.action_obj.fnList;
-            for (CNode c : fn) {
-
-                explore(c);
+            LinkedList<functionIndex> fn = p.action_obj.fnList;
+            for (functionIndex c : fn) {
+                CGraph graph=new CGraph();
+                graph.addBeginNode(c.getStart());
+                graph.addEndNode(c.getEnd());
+                //graph.compressNodes();
+                explore(graph.getBeginNode());
+                CGraphManager.addGraph(c.getName(), graph);
 
             }
             msj = msj + "}";
             StringSelection stringSelection = new StringSelection(msj);
             Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
             clpbrd.setContents(stringSelection, null);
-            System.out.println(msj);
             JOptionPane.showMessageDialog(null, exps);
             added.clear();
-            
+
         } catch (Exception ex) {
-            // Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
     ArrayList<String> added = new ArrayList<String>();
 
     public void explore(CNode n) {
         if (n.m_pLeftNode != null && !n.m_GExplored) {
-            if(n.getSingleCodeLine().contains("function")){
+            if (n.getSingleCodeLine().contains("function")) {
                 n.setType(7);
             }
-            if(n.m_pLeftNode.getSingleCodeLine().contains("end function")){
+            if (n.m_pLeftNode.getSingleCodeLine().contains("end function")) {
                 n.m_pLeftNode.setType(9);
             }
             // n.m_pLeftNode.addParent();
             String m;
             if (n.getType() != 0) {
-                m="\""+ n.getId()+" .. "+ n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId()+" .. "+n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\"[ label = \"SI\" ] \n";
-                String color="[color=goldenrod3]";
+                m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId() + " .. " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\"[ label = \"SI\" ] \n";
+                String color = "[color=goldenrod3]";
                 //[color=\"0.650 0.200 1.000\"]
-                if(n.getType()==7){
-                    color="[color=lemonchiffon2]";
+                if (n.getType() == 7) {
+                    color = "[color=lemonchiffon2]";
                 }
-                if(n.getType()==6){
-                    color="[color=lightsteelblue1]";
+                if (n.getType() == 6) {
+                    color = "[color=lightsteelblue1]";
                 }
-                if(n.getType()==9){
-                    color="[color=cadetblue1]";
+                if (n.getType() == 9) {
+                    color = "[color=cadetblue1]";
                 }
-                msj =msj + "\"" + n.getId()+" .. "+n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString()+"\"[shape=box]"+color+"\n";
-               
+                msj = msj + "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\"[shape=box]" + color + "\n";
+
             } else {
-                m= "\"" +n.getId()+" .. "+ n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" +n.m_pLeftNode.getId()+" .. "+ n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\" \n";
+                m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId() + " .. " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\" \n";
             }
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
@@ -195,8 +206,8 @@ public class Entorno extends javax.swing.JFrame {
             explore(n.m_pLeftNode);
         }
         if (n.m_pRightNode != null) {
-            String m="\"" + n.getId()+" .. "+n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" +n.m_pRightNode.getId()+" .. "+ n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pRightNode.m_lstUses.toString() + "  defs :" + n.m_pRightNode.m_lstDefs.toString() + "\"[ label = \"NO\" ] \n";
-            
+            String m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pRightNode.getId() + " .. " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pRightNode.m_lstUses.toString() + "  defs :" + n.m_pRightNode.m_lstDefs.toString() + "\"[ label = \"NO\" ] \n";
+
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
                 if (m.equals(added.get(i))) {

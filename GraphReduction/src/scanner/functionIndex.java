@@ -15,7 +15,14 @@ import java.util.LinkedList;
 public class functionIndex {
     
     String name;
-    LinkedList<CNode> nodes=new LinkedList<CNode>();
+    CNode start;
+    CNode end;
+
+    public functionIndex(String name, CNode start, CNode end) {
+        this.name = name;
+        this.start = start;
+        this.end = end;
+    }
 
     public String getName() {
         return name;
@@ -25,19 +32,19 @@ public class functionIndex {
         this.name = name;
     }
 
-    public LinkedList<CNode> getNodes() {
-        return nodes;
+    public CNode getStart() {
+        return start;
     }
 
-    public functionIndex() {
+    public void setStart(CNode start) {
+        this.start = start;
     }
 
-    public void setNodes(LinkedList<CNode> nodes) {
-        this.nodes = nodes;
+    public CNode getEnd() {
+        return end;
     }
-    
-    public void addNode(CNode c){
-        nodes.addLast(c);
+
+    public void setEnd(CNode end) {
+        this.end = end;
     }
-    
 }

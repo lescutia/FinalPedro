@@ -15,6 +15,10 @@ public class CGraph
     {
         
     }
+
+    public CNode getBeginNode() {
+        return m_BeginNode;
+    }
     
     public void increaseNumNodes(){ m_iNumNodes++; }
     
@@ -45,7 +49,8 @@ public class CGraph
     */
     void compressNodes( CNode in_prev, CNode in_actual, boolean in_bPrevHasDU )
     {
-        if( !in_actual.m_bVisited && in_prev != null && in_actual != null )
+        if(in_actual!=null){
+        if( !in_actual.m_bVisited && in_prev != null  )
         {
             in_actual.m_bVisited = true;
             boolean bActualhasDU = getDU( in_actual );
@@ -64,6 +69,7 @@ public class CGraph
             compressNodes( in_actual, in_actual.m_pLeftNode, bActualhasDU );
             compressNodes( in_actual, in_actual.m_pRightNode, bActualhasDU );
         }
+        }
     }
     
     /*
@@ -71,9 +77,10 @@ public class CGraph
     *   @Return true if the node has a def or use.
     */
     boolean getDU( CNode in_Node )
-    {
+    {/*
         return in_Node.instructionTypeExist( CNode.eLabels.DEF ) ? true : 
-                in_Node.instructionTypeExist( CNode.eLabels.USE );
+                in_Node.instructionTypeExist( CNode.eLabels.USE );*/
+        return in_Node.m_lstUses.size()>0 || in_Node.m_lstDefs.size()>0; 
     }
     
     /*
@@ -86,7 +93,8 @@ public class CGraph
                 in_Node.instructionTypeExist( CNode.eLabels.ENDFOR ) ? true:
                     in_Node.instructionTypeExist( CNode.eLabels.ENDIF )? true:
                         in_Node.instructionTypeExist( CNode.eLabels.ENDWHILE ) ? true:
-                            in_Node.instructionTypeExist( CNode.eLabels.ENDELSE );
+                            in_Node.instructionTypeExist( CNode.eLabels.ENDELSE )? true:
+                                in_Node.instructionTypeExist( CNode.eLabels.END);
     }
     
     public void generateCoverageGraph()

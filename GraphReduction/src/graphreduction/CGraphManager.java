@@ -29,6 +29,13 @@ public class CGraphManager {
          return result;
     }
     
+    public static void addGraph(String in_strGraphName, CGraph m_graph){
+        if( !m_GraphsMaps.containsKey( in_strGraphName ) )
+        {
+            m_GraphsMaps.put(in_strGraphName, m_graph);
+        }
+    }
+    
     public static Map<String, CGraph> getGraphs()
     {
         return m_GraphsMaps;

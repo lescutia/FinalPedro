@@ -22,7 +22,7 @@ LinkedList<CNode> list=new LinkedList<CNode>();
 LinkedList<CNode> breakList=new LinkedList<CNode>();
 LinkedList<CNode> continueList=new LinkedList<CNode>();
 LinkedList<CNode> returnList=new LinkedList<CNode>();
-LinkedList<CNode> fnList=new LinkedList<CNode>();
+LinkedList<functionIndex> fnList=new LinkedList<functionIndex>();
 /*NECESITO SABER SI ESTOY EN UN WHILE DENTRO DE OTRO*/
 Stack <String> whileNames =new Stack<String>();
 Stack <String> fnNames =new Stack<String>();
@@ -142,12 +142,13 @@ varDecl         ::= type:t id:i SEMICOLON
 fnDecl          ::= type:t id:i formals:f fnBody:fb
                 {: 
                     CNode fnName=new CNode(label(),i+"("+f.getSingleCodeLine()+")");
+                    fnName.addLabel(CNode.eLabels.START);
                     fnName.setType(6);
                     fnName.addDefList(f);
                     fnName.setLeft(fb);
                     fnName.setLastLeft(fb.m_lastLeft);
                     fb.m_lastLeft.setType(6);
-                    fnList.addLast(fnName);
+                    fnList.addLast(new functionIndex(i+"("+f.getSingleCodeLine()+")",fnName,fb.m_lastLeft));
                     for(CNode node:returnList){
                         node.setLeft(fb.m_lastLeft);
                     }
@@ -180,7 +181,7 @@ formals         ::= LPAREN RPAREN
                 :}
                 ;
 /*-------------------------------------CUERPO MAIN  ----------------------------- */
-mainbody ::= VOID MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl  RCURLY 
+mainbody ::= INT MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl  RCURLY 
                 {: 
                         vdl.addAll(sl);
                         for(int i=0;i<vdl.size();i++){
@@ -190,13 +191,15 @@ mainbody ::= VOID MAIN LPAREN RPAREN  LCURLY  varDeclList:vdl stmtList:sl  RCURL
                             }
                         }
                         CNode start=new CNode(label(),"start");
+                        start.addLabel(CNode.eLabels.START);
                         start.setType(9);
                         start.setLeft(vdl.get(0));
                         CNode end=new CNode(label(),"end");
+                        end.addLabel(CNode.eLabels.END);
                         end.setType(9);
                         vdl.get(vdl.size()-1).setLeft(end);
                         program=start;
-
+                        fnList.addLast(new functionIndex("main",start,end));
                         for(CNode node:returnList){
                              node.setLeft(end);
                         }
@@ -231,6 +234,7 @@ formalDecl      ::= type:t id:i
 fnBody          ::= LCURLY varDeclList:vdl stmtList:sl RCURLY
                 {: 
                     CNode last=new CNode(label(),"end function");
+                    last.addLabel(CNode.eLabels.END);
                     last.setType(7);
                     sl.addLast(last);
                     label++;
@@ -253,14 +257,14 @@ stmtList        ::= stmtList:sl   stmt:s
                    sl.addLast(s);
                    if(s.getType()==2){
                     CNode union=new CNode(label(),"");
-                    label++;
+                    union.addLabel(CNode.eLabels.ENDIF);
                     s.m_lastLeft.m_pLeftNode=union;
                     s.m_lastRight.m_pLeftNode=union;
                     sl.add(union);
                    }
                    if(s.getType()==1){
                     CNode union=new CNode(label(),"");
-                    label++;
+                    union.addLabel(CNode.eLabels.ENDIF);
                     s.m_lastLeft.m_pLeftNode=union;
                     s.m_pRightNode=union;
                     sl.add(union);
@@ -277,6 +281,7 @@ stmtList        ::= stmtList:sl   stmt:s
                         //JOptionPane.showMessageDialog(this, ex);
                      }
                     CNode union=new CNode(label(),"");
+                    union.addLabel(CNode.eLabels.ENDWHILE);
                     s.m_pRightNode=union;
                     sl.add(union);
                      /*MANDO LOS PUNTEROS DE LOS BREAKS AL FINAL DEL WHILE, al nodo UNION*/
@@ -358,6 +363,7 @@ stmt            ::= assignExp:ae SEMICOLON
                               }
                          }
                          RESULT=new CNode(label(),"WHILE "+e.getSingleCodeLine());
+                         RESULT.addLabel(CNode.eLabels.WHILE);
                          RESULT.mergeUses(e);
                          RESULT.setLeft(vdl.get(0));
                          RESULT.setType(3);
@@ -367,18 +373,21 @@ stmt            ::= assignExp:ae SEMICOLON
                 {: 
                     RESULT=new CNode(label(),"return "+e.getSingleCodeLine());
                     RESULT.mergeUses(e);
+                    RESULT.addLabel(CNode.eLabels.RETURN);
                     RESULT.setType(5);
                     returnList.addLast(RESULT);
                 :}
                 | BREAK SEMICOLON
                 {: 
                     RESULT=new CNode(label(),"break "+actualWhile);
+                    RESULT.addLabel(CNode.eLabels.BREAK);
                     RESULT.setType(4);
                     breakList.addLast(RESULT);
                 :}
                 | CONTINUE SEMICOLON
                 {: 
                     RESULT=new CNode(label(),"continue "+actualWhile);
+                    RESULT.addLabel(CNode.eLabels.CONTINUE);
                     RESULT.setType(6);
                     continueList.addLast(RESULT);
                 :}
@@ -407,6 +416,7 @@ CIF1 ::=   IF:ii   LPAREN exp:e RPAREN LCURLY  varDeclList:vdl stmtList:sl RCURL
                         }
                       }
                       RESULT=new CNode(label(),"IF "+e.getSingleCodeLine());
+                      RESULT.addLabel(CNode.eLabels.IF);
                       RESULT.mergeUses(e);
                       RESULT.setLeft(vdl.get(0));
                       RESULT.setType(1);
@@ -433,6 +443,7 @@ CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURL
                             }
                         }
                         RESULT=new CNode(label(),"IF "+e.getSingleCodeLine());
+                        RESULT.addLabel(CNode.eLabels.IF);
                         RESULT.mergeUses(e);
                         RESULT.setLeft(vdlt.get(0));
                         RESULT.setRight(vdle.get(0));
@@ -476,7 +487,7 @@ exp             ::= assignExp:ae
                 :}    
                 | NOT exp:e
                 {: 
-                    RESULT=new CNode(label(),"!"+e.getSingleCodeLine());
+                    RESULT=new CNode(label(),"-"+e.getSingleCodeLine());
                     RESULT.mergeUses(e);
                 :}    
                 | exp:e1 AND exp:e2
@@ -491,7 +502,7 @@ exp             ::= assignExp:ae
                 :}    
                 | exp:e1 EQUALS exp:e2
                 {: 
-                    RESULT=new CNode(label(),e1.getSingleCodeLine()+"=="+e2.getSingleCodeLine());
+                    RESULT=new CNode(label(),e1.getSingleCodeLine()+"="+e2.getSingleCodeLine());
                     RESULT.mergeUses(e1,e2);
                 :}    
                 | exp:e1 NOTEQUALS exp:e2

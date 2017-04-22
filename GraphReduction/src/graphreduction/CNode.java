@@ -9,7 +9,7 @@ import java.util.HashSet;
 public class CNode {
 
     public enum eLabels {
-        USE, DEF, RETURN, IF, ENDIF, WHILE, ENDWHILE, FOR, ENDFOR, ELSE, ENDELSE
+        USE, DEF, RETURN, IF, ENDIF, WHILE, ENDWHILE, CONTINUE, BREAK, FOR, ENDFOR, ELSE, ENDELSE, START, END
     };
 
     /*< Variable with unique value to identify nodes. */
@@ -65,6 +65,7 @@ public class CNode {
         m_lstDefs = new ArrayList<>();
         m_lstUses = new ArrayList<>();
         m_lstCodeLines = new ArrayList<>();
+        m_eLstInstructionsTypes=new ArrayList<>();
     }
 
     public boolean isId() {
@@ -86,6 +87,7 @@ public class CNode {
         m_lstDefs = new ArrayList<>();
         m_lstUses = new ArrayList<>();
         m_lstCodeLines = new ArrayList<>();
+        m_eLstInstructionsTypes=new ArrayList<>();
         m_iID = id;
         m_lstCodeLines.add(codeLine);
     }
@@ -101,6 +103,7 @@ public class CNode {
         m_lstUses = new ArrayList<>();
         m_lstCodeLines = new ArrayList<>();
         m_lstCodeLines.add(codeLine);
+        m_eLstInstructionsTypes=new ArrayList<>();
     }
 
     /**
@@ -206,5 +209,9 @@ public class CNode {
 
     public int getId() {
         return m_iID;
+    }
+    
+    public void addLabel(eLabels lb){
+        m_eLstInstructionsTypes.add(lb);
     }
 }
