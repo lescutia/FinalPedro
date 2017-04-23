@@ -83,6 +83,10 @@ public class CGraph
         return in_Node.m_lstUses.size()>0 || in_Node.m_lstDefs.size()>0; 
     }
     
+    public CNode getEndNode(){
+        return m_EndNodes.get(0);
+    }
+    
     /*
     *   @Param in_Node is the node that you're looking to identify if it's a dummy node.
     *   @Return true if the node is just to identify where does a section of code ends, otherwhise false.
