@@ -145,10 +145,9 @@ public class Entorno extends javax.swing.JFrame {
                 CGraph graph=new CGraph();
                 graph.addBeginNode(c.getStart());
                 graph.addEndNode(c.getEnd());
-                //graph.compressNodes();
+                graph.compressNodes();
                 explore(graph.getBeginNode());
                 CGraphManager.addGraph(c.getName(), graph);
-
             }
             msj = msj + "}";
             StringSelection stringSelection = new StringSelection(msj);
@@ -163,8 +162,9 @@ public class Entorno extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
     ArrayList<String> added = new ArrayList<String>();
 
-    public void explore(CNode n) {
-        if (n.m_pLeftNode != null && !n.m_GExplored) {
+    public void explore(CNode n) 
+    {
+        if ( n.m_pLeftNode != null && !n.m_GExplored) {
             if (n.getSingleCodeLine().contains("function")) {
                 n.setType(7);
             }

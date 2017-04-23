@@ -25,13 +25,11 @@ public class CGraph
     public void addBeginNode( CNode in_BeginNode )
     {
         m_BeginNode = in_BeginNode;
-        m_iNumNodes++;
     }
     
     public void addEndNode( CNode in_EndNode )
     {
         m_EndNodes.add(in_EndNode);
-        m_iNumNodes++;
     }
     
     public void compressNodes()
@@ -49,8 +47,7 @@ public class CGraph
     */
     void compressNodes( CNode in_prev, CNode in_actual, boolean in_bPrevHasDU )
     {
-        if(in_actual!=null){
-        if( !in_actual.m_bVisited && in_prev != null  )
+        if( in_actual != null && !in_actual.m_bVisited && in_prev != null  )
         {
             in_actual.m_bVisited = true;
             boolean bActualhasDU = getDU( in_actual );
@@ -60,6 +57,7 @@ public class CGraph
                 in_prev.concatenateDU(in_actual);
                 in_prev.m_pLeftNode = in_actual.m_pLeftNode;
                 in_actual = in_prev;
+                m_iNumNodes--;
             }
             else if ( !bActualhasDU && doesSectionCodeEnds(in_actual) )
             {
@@ -68,7 +66,6 @@ public class CGraph
             }
             compressNodes( in_actual, in_actual.m_pLeftNode, bActualhasDU );
             compressNodes( in_actual, in_actual.m_pRightNode, bActualhasDU );
-        }
         }
     }
     
