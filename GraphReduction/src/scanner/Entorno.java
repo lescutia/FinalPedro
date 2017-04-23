@@ -5,23 +5,56 @@
  */
 package scanner;
 
+import com.sun.glass.ui.Pixels.Format;
+import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
+import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
+import edu.uci.ics.jung.algorithms.layout.CircleLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.StaticLayout;
+import edu.uci.ics.jung.graph.DirectedGraph;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
+import edu.uci.ics.jung.graph.event.GraphEvent.Edge;
+import edu.uci.ics.jung.visualization.VisualizationImageServer;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import graphreduction.CGraph;
 import graphreduction.CGraphManager;
 import graphreduction.CNode;
 import highlight.CTokenMarker;
 import highlight.JEditTextArea;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Paint;
+import java.awt.Shape;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javafx.scene.input.KeyCode.V;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import logic.TruthTable;
+import javax.swing.SpringLayout;
+import org.apache.commons.collections15.Transformer;
 
 /**
  *
@@ -39,7 +72,7 @@ public class Entorno extends javax.swing.JFrame {
         initComponents();
         je.setTokenMarker(new CTokenMarker());
         je.setVisible(true);
-        je.setSize(800, 500);
+        je.setSize(800, getHeight() - 40);
         je.setCaretBlinkEnabled(true);
         je.setElectricScroll(ERROR);
         je.setHorizontalOffset(10);
@@ -71,6 +104,11 @@ public class Entorno extends javax.swing.JFrame {
         });
 
         jButton3.setText("Abrir");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Analizar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -124,8 +162,35 @@ public class Entorno extends javax.swing.JFrame {
         je.paste();
     }//GEN-LAST:event_jButton1ActionPerformed
     String msj = "";
-   // CGraphManager manager=new CGraphManager();
+    // CGraphManager manager=new CGraphManager();
     String mm;
+    String fileName;
+
+    private String abrirArchivo() {
+        String aux = "";
+        String texto;
+        texto = "";
+        try {
+            JFileChooser file = new JFileChooser(System.getProperty("user.dir")+"/programasC");
+            file.showOpenDialog(this);
+            File abre = file.getSelectedFile();
+            fileName = file.getName(abre).replace(".c", "");
+            if (abre != null) {
+                FileReader archivos = new FileReader(abre);
+                BufferedReader lee = new BufferedReader(archivos);
+                while ((aux = lee.readLine()) != null) {
+                    texto += aux + "\n";
+                }
+                lee.close();
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, ex + ""
+                    + "\nNo se ha encontrado el archivo",
+                    "ADVERTENCIA!!!", JOptionPane.WARNING_MESSAGE);
+        }
+        return texto;
+    }
+
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             msj = "";
@@ -136,138 +201,124 @@ public class Entorno extends javax.swing.JFrame {
             p.parse();
             // CGraph tmpGrpah = CGraphManager.getGraph("funcion");
             /*MORRO, BOOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
-            
+
             String exps = p.action_obj.boolexp.toString();
             CNode nod = p.action_obj.program;
             msj = msj + "digraph G {\nnode [style=filled];\n";
             //explore(nod);
-
+            g = new DirectedSparseGraph();
             LinkedList<functionIndex> fn = p.action_obj.fnList;
             for (functionIndex c : fn) {
-                CGraph graph=new CGraph();
+                CGraph graph = new CGraph();
                 graph.addBeginNode(c.getStart());
                 graph.addEndNode(c.getEnd());
-
                 //graph.compressNodes();
-                mm=graph.getBeginNode().getId()+"\n";
-                mm=mm+graph.getEndNode().getId()+"\n";
-                
-
+                mm = "%size%" + "\n";
+                mm = mm + graph.getBeginNode().getId() + "\n";
+                mm = mm + graph.getEndNode().getId() + "\n";
                 explore(graph.getBeginNode());
-                mm=mm+labels.size()+"\n";
+                mm = mm.replace("%size%", labels.size() + "");
                 labels.clear();
-                JOptionPane.showMessageDialog(null, mm);
                 added.clear();
-                mm="";
+                write(fileName + "_" + c.getName(), mm);
+                mm = "";
                 CGraphManager.addGraph(c.getName(), graph);
             }
             msj = msj + "}";
+            FRLayout layout = new FRLayout(g);
+            layout.setMaxIterations(100);
+            layout.setAttractionMultiplier(0.2); // default 0.75
+            layout.setRepulsionMultiplier(0.6); // default 0.75
+            // Transformer maps the vertex number to a vertex property
+            Transformer<String, Paint> vertexColor = new Transformer<String, Paint>() {
+                public Paint transform(String i) {
+                    if (i.toLowerCase().contains("end")) {
+                        return Color.GREEN;
+                    }
+                    if (i.toLowerCase().contains("start")) {
+                        return Color.GREEN;
+                    }
+                    for (functionIndex c : fn) {
+                        if (i.toLowerCase().contains(c.getName())) {
+                            return Color.GREEN;
+                        }
+                    }
+                    if (i.toLowerCase().contains("while")) {
+                        return Color.BLUE;
+                    }
+                    if (i.toLowerCase().contains("if")) {
+                        return Color.BLUE;
+                    }
+                    if (i.toLowerCase().contains("function")) {
+                        return Color.GRAY;
+                    }
+                    return Color.RED;
+                }
+            };
+
+            Transformer<String, Shape> vertexSize = new Transformer<String, Shape>() {
+                public Shape transform(String i) {
+                    Ellipse2D circle = new Ellipse2D.Double(-15, -15, 30, 30);
+                    Rectangle2D rectangle = new Rectangle2D.Float(-15, -15, 25, 25);
+                    // in this case, the vertex is twice as large
+                    for (functionIndex c : fn) {
+                        if (i.toLowerCase().contains(c.getName())) {
+                           return AffineTransform.getScaleInstance(1, 1).createTransformedShape(rectangle);
+                        }
+                    }
+                    if (i.toLowerCase().contains("start")) {
+                        return AffineTransform.getScaleInstance(1, 1).createTransformedShape(rectangle);
+                    } else {
+                        return circle;
+                    }
+                }
+            };
+            
+            VisualizationViewer viewer = new VisualizationViewer(layout, new Dimension(1280, 700));
+            viewer.getRenderContext().setVertexFillPaintTransformer(vertexColor);
+            viewer.getRenderContext().setVertexShapeTransformer(vertexSize);
+            /*VisualizationImageServer vs
+                    = new VisualizationImageServer(
+                            new FRLayout(g), new Dimension(1280, 700));*/
+            viewer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
+            DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
+            //viewer.setSize(1280, 720);
+            gm.setMode(DefaultModalGraphMouse.Mode.PICKING);
+            viewer.setBackground(Color.WHITE);
+            viewer.setGraphMouse(gm);
+            JFrame frame = new JFrame();
+            frame.getContentPane().add(viewer);
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.pack();
+            frame.setVisible(true);
+
+
             /*
             StringSelection stringSelection = new StringSelection(msj);
             Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
             clpbrd.setContents(stringSelection, null);
             JOptionPane.showMessageDialog(null, exps);
-            */
-            
-
+             */
         } catch (Exception ex) {
             Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        je.setText(abrirArchivo());
+    }//GEN-LAST:event_jButton3ActionPerformed
     ArrayList<String> added = new ArrayList<String>();
+    HashSet<Integer> labels = new HashSet<Integer>();
+    DirectedGraph g;
 
-    HashSet<Integer> labels=new HashSet<Integer>();
-/*
     public void explore(CNode n) {
-        if (n.m_pLeftNode != null && !n.m_GExplored) {
-
-            if (n.getSingleCodeLine().contains("function")) {
-                n.setType(7);
-            }
-            if (n.m_pLeftNode.getSingleCodeLine().contains("end function")) {
-                n.m_pLeftNode.setType(9);
-            }
-            // n.m_pLeftNode.addParent();
-            String m;
-            if (n.getType() != 0) {
-                m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId() + " .. " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\"[ label = \"SI\" ] \n";
-                String color = "[color=goldenrod3]";
-                //[color=\"0.650 0.200 1.000\"]
-                if (n.getType() == 7) {
-                    color = "[color=lemonchiffon2]";
-                }
-                if (n.getType() == 6) {
-                    color = "[color=lightsteelblue1]";
-                }
-                if (n.getType() == 9) {
-                    color = "[color=cadetblue1]";
-                }
-                msj = msj + "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\"[shape=box]" + color + "\n";
-
-            } else {
-                m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pLeftNode.getId() + " .. " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pLeftNode.m_lstUses.toString() + "  defs :" + n.m_pLeftNode.m_lstDefs.toString() + "\" \n";
-            }
-            boolean band = false;
-            for (int i = 0; i < added.size(); i++) {
-                if (m.equals(added.get(i))) {
-                    band = true;
-                    break;
-                }
-            }
-            added.add(m);
-            if (!band) {
-                msj = msj + m;
-            }
-            n.m_GExplored = true;
-            explore(n.m_pLeftNode);
-        }
-        if (n.m_pRightNode != null) {
-            String m = "\"" + n.getId() + " .. " + n.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_lstUses.toString() + "  defs :" + n.m_lstDefs.toString() + "\" -> \"" + n.m_pRightNode.getId() + " .. " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "") + " uses :" + n.m_pRightNode.m_lstUses.toString() + "  defs :" + n.m_pRightNode.m_lstDefs.toString() + "\"[ label = \"NO\" ] \n";
-
-            boolean band = false;
-            for (int i = 0; i < added.size(); i++) {
-                if (m.equals(added.get(i))) {
-                    band = true;
-                    break;
-                }
-            }
-            added.add(m);
-            if (!band) {
-                msj = msj + m;
-            }
-            n.m_GExplored = true;
-            explore(n.m_pRightNode);
-        }
-
-    }*/
- 
-    public void explore(CNode n) {
-        if (n.m_pLeftNode != null && n.m_pRightNode== null&& !n.m_GExplored) {
-          
-            
-            String m="["+n.getId()+"]"+
-                    "["+n.m_pLeftNode.getId()+"]\n";
-          labels.add(n.getId());
-          labels.add(n.m_pLeftNode.getId());
-            boolean band = false;
-            for (int i = 0; i < added.size(); i++) {
-                if (m.equals(added.get(i))) {
-                    band = true;
-                    break;
-                }
-            }
-            added.add(m);
-            if (!band) {
-                mm = mm + m;
-            }
-            n.m_GExplored = true;
-            explore(n.m_pLeftNode);
-        }
-        if (n.m_pRightNode != null) {
-           String m=" "+n.getId()+" "+
-                    " "+n.m_pLeftNode.getId()+" "+n.m_pRightNode.getId()+"\n";
+        if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) {
+            g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
+            String m = "" + n.getId()
+                    + " " + n.m_pLeftNode.getId() + "\n";
             labels.add(n.getId());
-           labels.add(n.m_pRightNode.getId());
+            labels.add(n.m_pLeftNode.getId());
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
                 if (m.equals(added.get(i))) {
@@ -280,11 +331,54 @@ public class Entorno extends javax.swing.JFrame {
                 mm = mm + m;
             }
             n.m_GExplored = true;
+            explore(n.m_pLeftNode);
+        }
+        if (n.m_pRightNode != null) {
+            g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
+            g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
+            String m = "" + n.getId()
+                    + " " + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
+            labels.add(n.getId());
+            labels.add(n.m_pRightNode.getId());
+            boolean band = false;
+            for (int i = 0; i < added.size(); i++) {
+                if (m.equals(added.get(i))) {
+                    band = true;
+                    break;
+                }
+            }
+            added.add(m);
+            if (!band) {
+                mm = mm + m;
+            }
+            n.m_GExplored = true;
+            explore(n.m_pLeftNode);
             explore(n.m_pRightNode);
         }
 
     }
-    
+
+    public void write(String name, String cont) {
+        FileWriter fichero = null;
+        BufferedWriter pw = null;
+        try {
+            fichero = new FileWriter(System.getProperty("user.dir") + "/programasC/" + name + ".txt");
+            pw = new BufferedWriter(fichero);
+            pw.write(cont);
+            pw.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (null != fichero) {
+                    fichero.close();
+                }
+            } catch (Exception e2) {
+                e2.printStackTrace();
+            }
+        }
+    }
 
     /**
      * @param args the command line arguments
@@ -300,16 +394,24 @@ public class Entorno extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Entorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Entorno.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Entorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Entorno.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Entorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Entorno.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Entorno.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Entorno.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
