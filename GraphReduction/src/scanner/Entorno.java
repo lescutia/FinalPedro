@@ -16,6 +16,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,6 +125,7 @@ public class Entorno extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
     String msj = "";
    // CGraphManager manager=new CGraphManager();
+    String mm;
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             msj = "";
@@ -138,23 +140,35 @@ public class Entorno extends javax.swing.JFrame {
             String exps = p.action_obj.boolexp.toString();
             CNode nod = p.action_obj.program;
             msj = msj + "digraph G {\nnode [style=filled];\n";
-            explore(nod);
+            //explore(nod);
 
             LinkedList<functionIndex> fn = p.action_obj.fnList;
             for (functionIndex c : fn) {
                 CGraph graph=new CGraph();
                 graph.addBeginNode(c.getStart());
                 graph.addEndNode(c.getEnd());
-                graph.compressNodes();
+
+                //graph.compressNodes();
+                mm=graph.getBeginNode().getId()+"\n";
+                mm=mm+graph.getEndNode().getId()+"\n";
+                
+
                 explore(graph.getBeginNode());
+                mm=mm+labels.size()+"\n";
+                labels.clear();
+                JOptionPane.showMessageDialog(null, mm);
+                added.clear();
+                mm="";
                 CGraphManager.addGraph(c.getName(), graph);
             }
             msj = msj + "}";
+            /*
             StringSelection stringSelection = new StringSelection(msj);
             Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
             clpbrd.setContents(stringSelection, null);
             JOptionPane.showMessageDialog(null, exps);
-            added.clear();
+            */
+            
 
         } catch (Exception ex) {
             Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
@@ -162,9 +176,11 @@ public class Entorno extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
     ArrayList<String> added = new ArrayList<String>();
 
-    public void explore(CNode n) 
-    {
-        if ( n.m_pLeftNode != null && !n.m_GExplored) {
+    HashSet<Integer> labels=new HashSet<Integer>();
+/*
+    public void explore(CNode n) {
+        if (n.m_pLeftNode != null && !n.m_GExplored) {
+
             if (n.getSingleCodeLine().contains("function")) {
                 n.setType(7);
             }
@@ -223,7 +239,52 @@ public class Entorno extends javax.swing.JFrame {
             explore(n.m_pRightNode);
         }
 
+    }*/
+ 
+    public void explore(CNode n) {
+        if (n.m_pLeftNode != null && n.m_pRightNode== null&& !n.m_GExplored) {
+          
+            
+            String m="["+n.getId()+"]"+
+                    "["+n.m_pLeftNode.getId()+"]\n";
+          labels.add(n.getId());
+          labels.add(n.m_pLeftNode.getId());
+            boolean band = false;
+            for (int i = 0; i < added.size(); i++) {
+                if (m.equals(added.get(i))) {
+                    band = true;
+                    break;
+                }
+            }
+            added.add(m);
+            if (!band) {
+                mm = mm + m;
+            }
+            n.m_GExplored = true;
+            explore(n.m_pLeftNode);
+        }
+        if (n.m_pRightNode != null) {
+           String m=" "+n.getId()+" "+
+                    " "+n.m_pLeftNode.getId()+" "+n.m_pRightNode.getId()+"\n";
+            labels.add(n.getId());
+           labels.add(n.m_pRightNode.getId());
+            boolean band = false;
+            for (int i = 0; i < added.size(); i++) {
+                if (m.equals(added.get(i))) {
+                    band = true;
+                    break;
+                }
+            }
+            added.add(m);
+            if (!band) {
+                mm = mm + m;
+            }
+            n.m_GExplored = true;
+            explore(n.m_pRightNode);
+        }
+
     }
+    
 
     /**
      * @param args the command line arguments
