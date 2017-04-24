@@ -5,56 +5,25 @@
  */
 package scanner;
 
-import com.sun.glass.ui.Pixels.Format;
-import edu.uci.ics.jung.algorithms.layout.AggregateLayout;
-import edu.uci.ics.jung.algorithms.layout.BalloonLayout;
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.FRLayout;
-import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
-import edu.uci.ics.jung.algorithms.layout.KKLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
-import edu.uci.ics.jung.algorithms.layout.StaticLayout;
-import edu.uci.ics.jung.graph.DirectedGraph;
-import edu.uci.ics.jung.graph.DirectedSparseGraph;
-import edu.uci.ics.jung.graph.event.GraphEvent.Edge;
-import edu.uci.ics.jung.visualization.VisualizationImageServer;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import graphreduction.CGraph;
 import graphreduction.CGraphManager;
 import graphreduction.CNode;
 import highlight.CTokenMarker;
 import highlight.JEditTextArea;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Paint;
-import java.awt.Shape;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static javafx.scene.input.KeyCode.V;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SpringLayout;
-import org.apache.commons.collections15.Transformer;
 
 /**
  *
@@ -93,6 +62,7 @@ public class Entorno extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -117,16 +87,24 @@ public class Entorno extends javax.swing.JFrame {
             }
         });
 
+        jToggleButton1.setText("Mode");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(874, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(861, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
+                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -138,7 +116,9 @@ public class Entorno extends javax.swing.JFrame {
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
-                .addContainerGap(419, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jToggleButton1)
+                .addContainerGap(385, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -147,7 +127,7 @@ public class Entorno extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 13, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -171,7 +151,7 @@ public class Entorno extends javax.swing.JFrame {
         String texto;
         texto = "";
         try {
-            JFileChooser file = new JFileChooser(System.getProperty("user.dir")+"/programasC");
+            JFileChooser file = new JFileChooser(System.getProperty("user.dir") + "/programasC");
             file.showOpenDialog(this);
             File abre = file.getSelectedFile();
             fileName = file.getName(abre).replace(".c", "");
@@ -190,23 +170,20 @@ public class Entorno extends javax.swing.JFrame {
         }
         return texto;
     }
-
+    boolean band=true;
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             msj = "";
             // TODO add your handling code here:
             String Cadena = je.getText();
-            /*ESTA CHINGADERILLA DE CÓDIGO ME SIRVE PARA JALAR EL TEXTO Y QUE LO ANALIZE EL PARSER*/
+            /*ESTA CÓDIGO ME SIRVE PARA JALAR EL TEXTO Y QUE LO ANALIZE EL PARSER*/
             p = new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
             p.parse();
-            // CGraph tmpGrpah = CGraphManager.getGraph("funcion");
-            /*MORRO, BOOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
+            /*OOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
 
             String exps = p.action_obj.boolexp.toString();
             CNode nod = p.action_obj.program;
             msj = msj + "digraph G {\nnode [style=filled];\n";
-            //explore(nod);
-            g = new DirectedSparseGraph();
             LinkedList<functionIndex> fn = p.action_obj.fnList;
             for (functionIndex c : fn) {
                 CGraph graph = new CGraph();
@@ -225,74 +202,7 @@ public class Entorno extends javax.swing.JFrame {
                 CGraphManager.addGraph(c.getName(), graph);
             }
             msj = msj + "}";
-            FRLayout layout = new FRLayout(g);
-            layout.setMaxIterations(100);
-            layout.setAttractionMultiplier(0.2); // default 0.75
-            layout.setRepulsionMultiplier(0.6); // default 0.75
-            // Transformer maps the vertex number to a vertex property
-            Transformer<String, Paint> vertexColor = new Transformer<String, Paint>() {
-                public Paint transform(String i) {
-                    if (i.toLowerCase().contains("end")) {
-                        return Color.GREEN;
-                    }
-                    if (i.toLowerCase().contains("start")) {
-                        return Color.GREEN;
-                    }
-                    for (functionIndex c : fn) {
-                        if (i.toLowerCase().contains(c.getName())) {
-                            return Color.GREEN;
-                        }
-                    }
-                    if (i.toLowerCase().contains("while")) {
-                        return Color.BLUE;
-                    }
-                    if (i.toLowerCase().contains("if")) {
-                        return Color.BLUE;
-                    }
-                    if (i.toLowerCase().contains("function")) {
-                        return Color.GRAY;
-                    }
-                    return Color.RED;
-                }
-            };
-
-            Transformer<String, Shape> vertexSize = new Transformer<String, Shape>() {
-                public Shape transform(String i) {
-                    Ellipse2D circle = new Ellipse2D.Double(-15, -15, 30, 30);
-                    Rectangle2D rectangle = new Rectangle2D.Float(-15, -15, 25, 25);
-                    // in this case, the vertex is twice as large
-                    for (functionIndex c : fn) {
-                        if (i.toLowerCase().contains(c.getName())) {
-                           return AffineTransform.getScaleInstance(1, 1).createTransformedShape(rectangle);
-                        }
-                    }
-                    if (i.toLowerCase().contains("start")) {
-                        return AffineTransform.getScaleInstance(1, 1).createTransformedShape(rectangle);
-                    } else {
-                        return circle;
-                    }
-                }
-            };
             
-            VisualizationViewer viewer = new VisualizationViewer(layout, new Dimension(1280, 700));
-            viewer.getRenderContext().setVertexFillPaintTransformer(vertexColor);
-            viewer.getRenderContext().setVertexShapeTransformer(vertexSize);
-            /*VisualizationImageServer vs
-                    = new VisualizationImageServer(
-                            new FRLayout(g), new Dimension(1280, 700));*/
-            viewer.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-            DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
-            //viewer.setSize(1280, 720);
-            gm.setMode(DefaultModalGraphMouse.Mode.PICKING);
-            viewer.setBackground(Color.WHITE);
-            viewer.setGraphMouse(gm);
-            JFrame frame = new JFrame();
-            frame.getContentPane().add(viewer);
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.pack();
-            frame.setVisible(true);
-
-
             /*
             StringSelection stringSelection = new StringSelection(msj);
             Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -308,13 +218,17 @@ public class Entorno extends javax.swing.JFrame {
         // TODO add your handling code here:
         je.setText(abrirArchivo());
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        // TODO add your handling code here:
+
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
     ArrayList<String> added = new ArrayList<String>();
     HashSet<Integer> labels = new HashSet<Integer>();
-    DirectedGraph g;
 
     public void explore(CNode n) {
         if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) {
-            g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
+            //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + "\n";
             labels.add(n.getId());
@@ -334,8 +248,8 @@ public class Entorno extends javax.swing.JFrame {
             explore(n.m_pLeftNode);
         }
         if (n.m_pRightNode != null) {
-            g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
-            g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
+            //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
+           // g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
             labels.add(n.getId());
@@ -357,12 +271,16 @@ public class Entorno extends javax.swing.JFrame {
         }
 
     }
-
+    /**
+     * ESCRIBIR EN UN FICHERO
+     * @param name
+     * @param cont 
+     */
     public void write(String name, String cont) {
         FileWriter fichero = null;
         BufferedWriter pw = null;
         try {
-            fichero = new FileWriter(System.getProperty("user.dir") + "/programasC/" + name + ".txt");
+            fichero = new FileWriter(System.getProperty("user.dir") + "/Salidas/" + name + ".txt");
             pw = new BufferedWriter(fichero);
             pw.write(cont);
             pw.close();
@@ -428,5 +346,6 @@ public class Entorno extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 }
