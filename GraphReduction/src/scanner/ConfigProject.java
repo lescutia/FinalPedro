@@ -11,7 +11,9 @@ package scanner;
  * @author Humanoide
  */
 public class ConfigProject {
-    
+    /**
+     * la ruta del programa de graphviz y se llama al archivo dot
+     */
     public static final String cmdGraphviz="C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
     
 }

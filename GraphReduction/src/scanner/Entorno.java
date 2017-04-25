@@ -39,7 +39,9 @@ public class Entorno extends javax.swing.JFrame {
      */
     JEditTextArea je = new JEditTextArea();
     parser p;
-
+    /**
+     * voy a setear el textarea que tiene el resaltador para codigo de C
+     */
     public Entorno() {
         initComponents();
         je.setTokenMarker(new CTokenMarker());
@@ -65,7 +67,6 @@ public class Entorno extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jToggleButton1 = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -90,13 +91,6 @@ public class Entorno extends javax.swing.JFrame {
             }
         });
 
-        jToggleButton1.setText("Mode");
-        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton1ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -106,8 +100,7 @@ public class Entorno extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jButton3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE)
-                    .addComponent(jToggleButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -119,9 +112,7 @@ public class Entorno extends javax.swing.JFrame {
                 .addComponent(jButton3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jToggleButton1)
-                .addContainerGap(385, Short.MAX_VALUE))
+                .addContainerGap(419, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -144,8 +135,10 @@ public class Entorno extends javax.swing.JFrame {
         // TODO add your handling code here:
         je.paste();
     }//GEN-LAST:event_jButton1ActionPerformed
+    /*cadena que se usa para el graphviz*/
     String msj = "";
     String mm;
+    /*variable del nombre del archivo*/
     String fileName;
 
     /**
@@ -185,13 +178,14 @@ public class Entorno extends javax.swing.JFrame {
             String Cadena = je.getText();
             /*ESTA CÓDIGO ME SIRVE PARA JALAR EL TEXTO Y QUE LO ANALIZE EL PARSER*/
             p = new parser(new Yylex(new BufferedReader(new StringReader(Cadena))));
+            /*LLAMO AL ANALIZADOR SINTÁCTICO*/
             p.parse();
             /*OOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
-
+            /*se puede usar para la evaluación de predicados*/
             String exps = p.action_obj.boolexp.toString();
-            CNode nod = p.action_obj.program;
             msj = msj + "digraph G {\nnode [style=filled];\n";
             LinkedList<functionIndex> fn = p.action_obj.fnList;
+            /*genero el objeto que tiene la referencia de las funciones*/
             for (functionIndex c : fn) {
                 CGraph graph = new CGraph();
                 graph.addBeginNode(c.getStart());
@@ -206,20 +200,13 @@ public class Entorno extends javax.swing.JFrame {
                 added.clear();
                 write("/Salidas/" + fileName + "_" + c.getName(), mm);
                 mm = "";
+                /*LOS GRAFOS DEL CGRAPHMANAGER TIENEN LAS REFERENCIAS A LAS CABEZAS*/
                 CGraphManager.addGraph(c.getName(), graph);
             }
             msj = msj + "}";
-
-            /**
-             * BLOQUE PARA COPIAR EL TEXTO
-             */
-            /*
-            StringSelection stringSelection = new StringSelection(msj);
-            Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clpbrd.setContents(stringSelection, null);
-             */
             write("/GrafoTexto/" + fileName, msj);
             generateImg(fileName,"png");
+            /*Imprimo la lista de expresiones booleanas*/
             JOptionPane.showMessageDialog(null, exps);
 
         } catch (Exception ex) {
@@ -231,23 +218,26 @@ public class Entorno extends javax.swing.JFrame {
         // TODO add your handling code here:
         je.setText(abrirArchivo());
     }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // TODO add your handling code here:
-
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
+    /**
+     * al generar la cadena del grafo, esta se puede repetir, para eso uso esta lista
+     */
     ArrayList<String> added = new ArrayList<String>();
+    /**
+     * esta lista sirve para añadir los identificadores de los nodos, así cuando cuento los nodos, uso una función hash
+     */
     HashSet<Integer> labels = new HashSet<Integer>();
-
+    /**
+     * realizo una busqueda en profundidad para obtener las cadenas para el graphviz
+     * @param n 
+     */
     public void explore(CNode n) {
         if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) {
-            //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + "\n";
-
             labels.add(n.getId());
             labels.add(n.m_pLeftNode.getId());
             boolean band = false;
+            /*checo que no se repitan*/
             for (int i = 0; i < added.size(); i++) {
                 if (m.equals(added.get(i))) {
                     band = true;
@@ -263,8 +253,6 @@ public class Entorno extends javax.swing.JFrame {
             explore(n.m_pLeftNode);
         }
         if (n.m_pRightNode != null) {
-            //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
-            // g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
             labels.add(n.getId());
@@ -316,7 +304,11 @@ public class Entorno extends javax.swing.JFrame {
             }
         }
     }
-    
+    /**
+     * llamo al graphviz para generar la imagen del grafo
+     * @param fileName
+     * @param format 
+     */
     public void generateImg(String fileName, String format){
              try {
                 String cmd = ConfigProject.cmdGraphviz+" -T"+format+" "+System.getProperty("user.dir") + "/GrafoTexto/"+fileName+".txt "+
@@ -375,6 +367,5 @@ public class Entorno extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
 }
