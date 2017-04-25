@@ -1,0 +1,19 @@
+GRAMATICA FOR
+
+	FOR ::= FOR LPAREN expr PCOMA expr PCOMA expr DPAREN LCURLY vardeclist smtlist DCURLY;  >>>>>>>>>>>>>>>listo
+
+Añadir el puntero & a expr
+
+Limpiar includes
+
+Añadir %
+
+Hacer que scanf haga DEFS
+
+Arrays
+
+declaraciones con comas
+
+declaraciones y asigns
+
+SWITCH
