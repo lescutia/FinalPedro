@@ -43,7 +43,7 @@ int label(){
 
 
 /* Terminals (tokens returned by the scanner) */
-terminal  String INT, errorlex, MAIN, FOR, BOOL, COMA, VOID, TRUE, FALSE, STRUCT, CIN, COUT, IF, ELSE, WHILE, RETURN, ID, INTLITERAL, STRINGLITERAL, RCURLY, LCURLY,FLOAT, LPAREN,  RPAREN,SEMICOLON,COMMA,DOT,WRITE,READ,PLUSPLUS,MINUSMINUS,PLUS,MINUS,TIMES,DIVIDE,NOT,AND,OR,EQUALS,NOTEQUALS,LESS,GREATER,LESSEQ,GREATEREQ,ASSIGN,BREAK, CONTINUE;
+terminal  String INT, errorlex, MAIN, FOR, BOOL, COMA, VOID, REFERENCE, TRUE, FALSE, STRUCT, CIN, COUT, IF, ELSE, WHILE, RETURN, ID, INTLITERAL, STRINGLITERAL, RCURLY, LCURLY,FLOAT, LPAREN,  RPAREN,SEMICOLON,COMMA,DOT,WRITE,READ,PLUSPLUS,MINUSMINUS,PLUS,MINUS,TIMES,DIVIDE,NOT,AND,OR,EQUALS,NOTEQUALS,LESS,GREATER,LESSEQ,GREATEREQ,ASSIGN,BREAK, CONTINUE;
 
 
 /* Nonterminals
@@ -605,7 +605,12 @@ exp             ::= assignExp:ae
                 {: 
                    RESULT=new CNode(label(),"-"+e.getSingleCodeLine());
                    RESULT.mergeUses(e);
-                :}    
+                :}   
+                | REFERENCE exp:e
+                {: 
+                   RESULT=new CNode(label(),"&"+e.getSingleCodeLine());
+                   RESULT.mergeUses(e);
+                :} 
                 | term:t
                 {: 
                     RESULT= t;
@@ -649,15 +654,17 @@ term            ::= loc:lc
 fncall          ::= id:idd LPAREN RPAREN
                 {: 
                     RESULT=new CNode(label(),idd+" ( ) ");
-
-
-                    
-                                
+                            
                 :}
                 | id:i LPAREN actualList:al RPAREN
                 {: 
                     RESULT=new CNode(label(),i+"( "+al.getSingleCodeLine()+" )");
-                    RESULT.mergeUses(al);
+                    if(i.contains("scanf")){
+                        RESULT.addDefList(al);
+                    }
+                    else{
+                        RESULT.mergeUses(al);
+                    }
                 :}
                 ;
                 

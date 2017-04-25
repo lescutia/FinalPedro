@@ -169,7 +169,9 @@ return new Symbol(sym.EOF);
           
 "-"       {return new Symbol(sym.MINUS ,yychar, yyline);}       
           
-"*"      {return new Symbol(sym.TIMES, yychar, yyline);}             
+"*"      {return new Symbol(sym.TIMES, yychar, yyline);}   
+
+"&"      {return new Symbol(sym.REFERENCE, yychar, yyline);}            
           
 "/"      {return new Symbol(sym.DIVIDE, yychar, yyline);}
 
