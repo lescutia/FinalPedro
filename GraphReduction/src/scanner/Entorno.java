@@ -10,6 +10,9 @@ import graphreduction.CGraphManager;
 import graphreduction.CNode;
 import highlight.CTokenMarker;
 import highlight.JEditTextArea;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -142,10 +145,14 @@ public class Entorno extends javax.swing.JFrame {
         je.paste();
     }//GEN-LAST:event_jButton1ActionPerformed
     String msj = "";
-    // CGraphManager manager=new CGraphManager();
     String mm;
     String fileName;
 
+    /**
+     * abre el archivo
+     *
+     * @return
+     */
     private String abrirArchivo() {
         String aux = "";
         String texto;
@@ -170,7 +177,7 @@ public class Entorno extends javax.swing.JFrame {
         }
         return texto;
     }
-    boolean band=true;
+    boolean band = true;
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         try {
             msj = "";
@@ -197,18 +204,24 @@ public class Entorno extends javax.swing.JFrame {
                 mm = mm.replace("%size%", labels.size() + "");
                 labels.clear();
                 added.clear();
-                write(fileName + "_" + c.getName(), mm);
+                write("/Salidas/" + fileName + "_" + c.getName(), mm);
                 mm = "";
                 CGraphManager.addGraph(c.getName(), graph);
             }
             msj = msj + "}";
-            
+
+            /**
+             * BLOQUE PARA COPIAR EL TEXTO
+             */
             /*
             StringSelection stringSelection = new StringSelection(msj);
             Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
             clpbrd.setContents(stringSelection, null);
-            JOptionPane.showMessageDialog(null, exps);
              */
+            write("/GrafoTexto/" + fileName, msj);
+            generateImg(fileName,"png");
+            JOptionPane.showMessageDialog(null, exps);
+
         } catch (Exception ex) {
             Logger.getLogger(Entorno.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -231,6 +244,7 @@ public class Entorno extends javax.swing.JFrame {
             //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + "\n";
+
             labels.add(n.getId());
             labels.add(n.m_pLeftNode.getId());
             boolean band = false;
@@ -243,13 +257,14 @@ public class Entorno extends javax.swing.JFrame {
             added.add(m);
             if (!band) {
                 mm = mm + m;
+                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
         }
         if (n.m_pRightNode != null) {
             //g.addEdge(n.getId() + " " + n.m_pLeftNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pLeftNode.getId() + " " + n.m_pLeftNode.getSingleCodeLine());
-           // g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
+            // g.addEdge(n.getId() + " " + n.m_pRightNode.getId() + "", n.getId() + " " + n.getSingleCodeLine(), n.m_pRightNode.getId() + " " + n.m_pRightNode.getSingleCodeLine());
             String m = "" + n.getId()
                     + " " + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
             labels.add(n.getId());
@@ -263,6 +278,8 @@ public class Entorno extends javax.swing.JFrame {
             }
             added.add(m);
             if (!band) {
+                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
+                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pRightNode.getId() + ": " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
                 mm = mm + m;
             }
             n.m_GExplored = true;
@@ -271,16 +288,18 @@ public class Entorno extends javax.swing.JFrame {
         }
 
     }
+
     /**
      * ESCRIBIR EN UN FICHERO
+     *
      * @param name
-     * @param cont 
+     * @param cont
      */
     public void write(String name, String cont) {
         FileWriter fichero = null;
         BufferedWriter pw = null;
         try {
-            fichero = new FileWriter(System.getProperty("user.dir") + "/Salidas/" + name + ".txt");
+            fichero = new FileWriter(System.getProperty("user.dir") + name + ".txt");
             pw = new BufferedWriter(fichero);
             pw.write(cont);
             pw.close();
@@ -296,6 +315,16 @@ public class Entorno extends javax.swing.JFrame {
                 e2.printStackTrace();
             }
         }
+    }
+    
+    public void generateImg(String fileName, String format){
+             try {
+                String cmd = ConfigProject.cmdGraphviz+" -T"+format+" "+System.getProperty("user.dir") + "/GrafoTexto/"+fileName+".txt "+
+                       "-o "+ System.getProperty("user.dir") + "/GrafoImg/"+fileName+"."+format; 
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException ioe) {
+                System.out.println(ioe);
+            }
     }
 
     /**

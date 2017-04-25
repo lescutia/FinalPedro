@@ -305,6 +305,42 @@ stmtList        ::= stmtList:sl   stmt:s
                          }
                   
                    }
+                   if(s.getType()==5){
+                    
+                    String thisWhile="";
+                    try{
+                        if (!whileNames.isEmpty()){
+                            thisWhile=whileNames.pop();
+                            actualWhile=whileNames.peek();
+                         }
+                    }catch(Exception ex){
+                        //JOptionPane.showMessageDialog(this, ex);
+                     }
+                    CNode union=new CNode(label(),"");
+                    union.addLabel(CNode.eLabels.FOR);
+                    s.m_pLeftNode.m_pRightNode=union;
+                    //s.m_pRightNode=union;
+                    sl.add(union);
+                     /*MANDO LOS PUNTEROS DE LOS BREAKS AL FINAL DEL WHILE, al nodo UNION*/
+                         if(!breakList.isEmpty()){
+                            for(int i=0;i<breakList.size();i++){
+                                    CNode actualBreak=breakList.get(i);
+                                    if(actualBreak.getSingleCodeLine().contains(thisWhile)){
+                                        actualBreak.m_pLeftNode=union;  
+                                    }
+                            }
+
+                         }
+                         if(!continueList.isEmpty()){
+                            for(int i=0;i<continueList.size();i++){
+                                    CNode actualContinue=continueList.get(i);
+                                    if(actualContinue.getSingleCodeLine().contains(thisWhile)){
+                                        actualContinue.m_pLeftNode=s.m_pLeftNode;  
+                                    }
+                            }
+                         }
+                  
+                   }
                    RESULT=sl;
                    
                 :}
@@ -369,13 +405,38 @@ stmt            ::= assignExp:ae SEMICOLON
                          RESULT.setLeft(vdl.get(0));
                          RESULT.setType(3);
                          vdl.get(vdl.size()-1).setLeft(RESULT);
+                :}
+                | FOR:a {:a="while"+whileLabel; actualWhile=a; whileLabel++; whileNames.push(a);:} LPAREN exp:e1 SEMICOLON exp:e2 SEMICOLON exp:e3 RPAREN LCURLY varDeclList:vdl stmtList:sl RCURLY
+                {:
+                       // RESULT=new CNode(label(),"FOR ");
+                        boolexp.add(e2.getSingleCodeLine());  
+                         /*UNO LA LISTA DE VARDECL Y STMTLIST*/
+                         vdl.addAll(sl);
+                         /*UNO TODOS LOS NODOS DEL LIS.T*/
+                         for(int i=0;i<vdl.size();i++){
+                              if(i>0){
+                                  if(vdl.get(i-1).getType()==0)
+                                  vdl.get(i-1).setLeft(vdl.get(i));
+                              }
+                         }
+                         RESULT=new CNode(label(),e1.getSingleCodeLine());
+                         CNode nodeFor=new CNode(label(),"WHILE "+e2.getSingleCodeLine());
+                         RESULT.setLeft(nodeFor);
+                         nodeFor.addLabel(CNode.eLabels.FOR);
+                         nodeFor.mergeUses(e2,e3);
+                         nodeFor.setLeft(vdl.get(0));
+                         //nodeFor.setType(5);
+                         RESULT.setType(5);
+                         //RESULT=nodeFor;
+                         CNode incr=new CNode(label(),e3.getSingleCodeLine());
+                         vdl.get(vdl.size()-1).setLeft(incr);
+                         incr.setLeft(nodeFor);
                 :}                
                 | RETURN exp:e SEMICOLON
                 {: 
                     RESULT=new CNode(label(),"return "+e.getSingleCodeLine());
                     RESULT.mergeUses(e);
                     RESULT.addLabel(CNode.eLabels.RETURN);
-                    RESULT.setType(5);
                     returnList.addLast(RESULT);
                 :}
                 | BREAK SEMICOLON
@@ -395,7 +456,6 @@ stmt            ::= assignExp:ae SEMICOLON
                 | RETURN SEMICOLON
                 {: 
                     RESULT=new CNode(label(),"return ");
-                    RESULT.setType(5);
                     returnList.addLast(RESULT);
                 :}
                 | fncall:f SEMICOLON
@@ -475,6 +535,18 @@ exp             ::= assignExp:ae
                 {: 
                 RESULT=new CNode(label(),e1.getSingleCodeLine()+"-"+e2.getSingleCodeLine());
                     RESULT.mergeUses(e1,e2);
+                :}
+                | loc:lc PLUSPLUS 
+                {: 
+                    RESULT=new CNode(label(),lc.getSingleCodeLine() +"++");
+                    RESULT.addUse(lc.getSingleCodeLine());
+                    RESULT.addDef(lc.getSingleCodeLine());
+                :}
+                | loc:lc MINUSMINUS 
+                {: 
+                    RESULT=new CNode(label(),lc.getSingleCodeLine()+"--");
+                    RESULT.addUse(lc.getSingleCodeLine());
+                    RESULT.addDef(lc.getSingleCodeLine());
                 :}                    
                 | exp:e1 TIMES exp:e2
                 {: 
@@ -576,7 +648,7 @@ term            ::= loc:lc
 /*-------------------------------------LLAMADA A FUNCIÓN  ----------------------------- */
 fncall          ::= id:idd LPAREN RPAREN
                 {: 
-                    RESULT=new CNode(label(),"function "+idd+" ( ) ");
+                    RESULT=new CNode(label(),idd+" ( ) ");
 
 
                     
@@ -584,7 +656,7 @@ fncall          ::= id:idd LPAREN RPAREN
                 :}
                 | id:i LPAREN actualList:al RPAREN
                 {: 
-                    RESULT=new CNode(label(),"function "+i+"( "+al.getSingleCodeLine()+" )");
+                    RESULT=new CNode(label(),i+"( "+al.getSingleCodeLine()+" )");
                     RESULT.mergeUses(al);
                 :}
                 ;

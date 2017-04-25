@@ -16,6 +16,10 @@ public class CNode {
     int m_iID;
 
     boolean m_isId = false;
+    /**
+     * esta variable le sirve a gamma para su algoritmo
+     */
+    public boolean gammaExplored=false;
     /*< Enum to identify the instruction type. */
     ArrayList<eLabels> m_eLstInstructionsTypes;
     /*< string array of the defined variables. */

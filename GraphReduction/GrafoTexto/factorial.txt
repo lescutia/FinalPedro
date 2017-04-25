@@ -1,0 +1,17 @@
+digraph G {
+node [style=filled];
+"32: start"->"1: int number"
+"1: int number"->"2: float factorial"
+"2: float factorial"->"5:  cout **``Enter an integer: \n``**"
+"5:  cout **``Enter an integer: \n``**"->"7:  cin number"
+"7:  cin number"->"11: factorial=1"
+"11: factorial=1"->"24: WHILE number>0"
+"24: WHILE number>0"->"21: factorial=factorial*number"
+"24: WHILE number>0"->"25: "
+"21: factorial=factorial*number"->"23: number--"
+"23: number--"->"24: WHILE number>0"
+"25: "->"27:  cout **``Factorial= \n``**"
+"27:  cout **``Factorial= \n``**"->"29:  cout **factorial**"
+"29:  cout **factorial**"->"31: return 0"
+"31: return 0"->"33: end"
+}

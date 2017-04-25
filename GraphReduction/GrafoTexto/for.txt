@@ -1,0 +1,22 @@
+digraph G {
+node [style=filled];
+"8: imprimir(n)"->"3:  cout **``imprime\n``**"
+"3:  cout **``imprime\n``**"->"5:  cout **n**"
+"5:  cout **n**"->"6: end function"
+"43: start"->"10: int a"
+"10: int a"->"11: int i"
+"11: int i"->"14:  cout **``cuantas veces necesitas imprimir?``**"
+"14:  cout **``cuantas veces necesitas imprimir?``**"->"16:  cin a"
+"16:  cin a"->"39: IF a=0"
+"39: IF a=0"->"22:  cout **``no se imprimirá nada``**"
+"39: IF a=0"->"35: i=0"
+"22:  cout **``no se imprimirá nada``**"->"40: "
+"40: "->"42: return 0"
+"42: return 0"->"44: end"
+"35: i=0"->"36: WHILE i<10"
+"36: WHILE i<10"->"34: imprimir( a )"
+"36: WHILE i<10"->"38: "
+"34: imprimir( a )"->"37: i++"
+"37: i++"->"36: WHILE i<10"
+"38: "->"40: "
+}
