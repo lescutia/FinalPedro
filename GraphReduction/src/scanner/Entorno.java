@@ -32,27 +32,31 @@ import javax.swing.JOptionPane;
  *
  * @author Humanoide
  */
-public class Entorno extends javax.swing.JFrame {
+public class Entorno extends javax.swing.JFrame
+{
 
     /**
      * Creates new form Entorno
      */
     JEditTextArea je = new JEditTextArea();
     parser p;
+
     /**
      * voy a setear el textarea que tiene el resaltador para codigo de C
      */
-    public Entorno() {
-        initComponents();
-        je.setTokenMarker(new CTokenMarker());
-        je.setVisible(true);
-        je.setSize(800, getHeight() - 40);
-        je.setCaretBlinkEnabled(true);
-        je.setElectricScroll(ERROR);
-        je.setHorizontalOffset(10);
-        je.setOverwriteEnabled(true);
-        jPanel1.add(je);
+    public Entorno()
+    {
+	initComponents();
+	je.setTokenMarker(new CTokenMarker());
+	je.setVisible(true);
+	je.setSize(800, getHeight() - 40);
+	je.setCaretBlinkEnabled(true);
+	je.setElectricScroll(ERROR);
+	je.setHorizontalOffset(10);
+	je.setOverwriteEnabled(true);
+	jPanel1.add(je);
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -188,16 +192,18 @@ public class Entorno extends javax.swing.JFrame {
             /*genero el objeto que tiene la referencia de las funciones*/
             for (functionIndex c : fn) {
                 CGraph graph = new CGraph();
-                graph.addBeginNode(c.getStart());
+		graph.addBeginNode(c.getStart());
                 graph.addEndNode(c.getEnd());
+		graph.resetMappedIds();
                 //graph.compressNodes();
                 mm = "%size%" + "\n";
-                mm = mm + graph.getBeginNode().getId() + "\n";
-                mm = mm + graph.getEndNode().getId() + "\n";
+                mm = mm + graph.getBeginNode().getMappedId() + "\n";
+                mm = mm + graph.getEndNode().getMappedId() + "\n";
                 explore(graph.getBeginNode());
                 mm = mm.replace("%size%", labels.size() + "");
                 labels.clear();
                 added.clear();
+		
                 write("/Salidas/" + fileName + "_" + c.getName(), mm);
                 mm = "";
                 /*LOS GRAFOS DEL CGRAPHMANAGER TIENEN LAS REFERENCIAS A LAS CABEZAS*/
@@ -230,51 +236,63 @@ public class Entorno extends javax.swing.JFrame {
      * realizo una busqueda en profundidad para obtener las cadenas para el graphviz
      * @param n 
      */
-    public void explore(CNode n) {
-        if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) {
-            String m = "" + n.getId()
+    public void explore(CNode n) 
+    {
+	String m = "";
+	String m2 = "";
+	
+        if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) 
+	{
+            m = "" /* + n.getMappedId()
+                    + " " */+ n.m_pLeftNode.getMappedId() + "\n";
+	    m2 = ""  + n.getId()
                     + " " + n.m_pLeftNode.getId() + "\n";
             labels.add(n.getId());
             labels.add(n.m_pLeftNode.getId());
             boolean band = false;
             /*checo que no se repitan*/
             for (int i = 0; i < added.size(); i++) {
-                if (m.equals(added.get(i))) {
+                if (m2.equals(added.get(i))) {
                     band = true;
                     break;
                 }
             }
-            added.add(m);
+            added.add(m2);
             if (!band) {
                 mm = mm + m;
-                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
+                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getMappedId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
         }
-        if (n.m_pRightNode != null) {
-            String m = "" + n.getId()
-                    + " " + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
+	else if (n.m_pRightNode != null) {
+            m = "" /* + n.getMappedId()
+                    + " " */ + n.m_pLeftNode.getMappedId() + " " + n.m_pRightNode.getMappedId() + "\n";
+	    m2 = ""  + n.getId()
+                    +  + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
             labels.add(n.getId());
             labels.add(n.m_pRightNode.getId());
             boolean band = false;
             for (int i = 0; i < added.size(); i++) {
-                if (m.equals(added.get(i))) {
+                if (m2.equals(added.get(i))) {
                     band = true;
                     break;
                 }
             }
-            added.add(m);
+            added.add(m2);
             if (!band) {
-                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
-                msj = msj + "\"" + n.getId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pRightNode.getId() + ": " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
+                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getMappedId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
+                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pRightNode.getMappedId() + ": " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
                 mm = mm + m;
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
             explore(n.m_pRightNode);
         }
-
+	else if( !n.m_GExplored )
+	{
+	    mm += "\n";
+	}
     }
 
     /**

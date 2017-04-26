@@ -12,39 +12,54 @@ import java.util.LinkedList;
  *
  * @author Humanoide
  */
-public class functionIndex {
-    
+public class functionIndex
+{
     String name;
     CNode start;
     CNode end;
 
-    public functionIndex(String name, CNode start, CNode end) {
-        this.name = name;
-        this.start = start;
-        this.end = end;
+    public functionIndex( String name, CNode start, CNode end )
+    {
+	this.name = name;
+	this.start = start;
+	this.end = end;
     }
 
-    public String getName() {
-        return name;
+
+    public String getName()
+    {
+	return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+
+    public void setName( String name )
+    {
+	this.name = name;
     }
 
-    public CNode getStart() {
-        return start;
+
+    public CNode getStart()
+    {
+	return start;
     }
 
-    public void setStart(CNode start) {
-        this.start = start;
+
+    public void setStart( CNode start )
+    {
+	this.start = start;
     }
 
-    public CNode getEnd() {
-        return end;
+
+    public CNode getEnd()
+    {
+	return end;
     }
 
-    public void setEnd(CNode end) {
-        this.end = end;
+
+    public void setEnd( CNode end )
+    {
+	this.end = end;
     }
+
+
 }

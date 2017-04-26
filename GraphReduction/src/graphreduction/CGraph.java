@@ -102,4 +102,21 @@ public class CGraph
     {
         //Generar txt
     }
+    
+    public void resetMappedIds()
+    {
+	resetMappedIds( m_BeginNode, 0 );
+    }
+    
+    int resetMappedIds( CNode in_actualNode, int in_actualId )
+    {
+	if( in_actualNode == null || in_actualNode.getMappedId() != -1 )
+	    return in_actualId - 1;
+	
+	in_actualNode.setMappedId(in_actualId);
+	
+	in_actualId = resetMappedIds(in_actualNode.m_pLeftNode, in_actualId+1);
+	in_actualId = resetMappedIds(in_actualNode.m_pRightNode, in_actualId+1);
+	return in_actualId;
+    }
 }
