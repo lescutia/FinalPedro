@@ -210,6 +210,8 @@ public class Entorno extends javax.swing.JFrame
 		mm=mm+allDefs+allUses;
                 write("/Salidas/" + fileName + "_" + c.getName(), mm);
                 mm = "";
+                allDefs="";
+                allUses="";
                 /*LOS GRAFOS DEL CGRAPHMANAGER TIENEN LAS REFERENCIAS A LAS CABEZAS*/
                 CGraphManager.addGraph(c.getName(), graph);
             }
