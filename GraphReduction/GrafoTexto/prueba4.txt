@@ -18,10 +18,8 @@ node [style=filled];
 "47: "->"49:  cout **next**"
 "49:  cout **next**"->"51:  cout **``\n``**"
 "51:  cout **``\n``**"->"53: c++"
-"53: c++"->"54: WHILE c<n"
 "37: next=first+second"->"41: first=second"
 "41: first=second"->"45: second=next"
-"45: second=next"->"47: "
 "55: "->"57: return 0"
 "57: return 0"->"59: end"
 }
