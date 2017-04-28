@@ -5,6 +5,7 @@
  */
 package scanner;
 
+import graphreduction.BooleanExpressionsManager;
 import graphreduction.CGraph;
 import graphreduction.CGraphManager;
 import graphreduction.CNode;
@@ -187,6 +188,7 @@ public class Entorno extends javax.swing.JFrame
             /*OOLEXP ES UNA LISTA CON LAS EXPRESIONES BOOLEANAS PERO DE TODO EL PROGRAMA*/
             /*se puede usar para la evaluación de predicados*/
             String exps = p.action_obj.boolexp.toString();
+            BooleanExpressionsManager.setList(p.action_obj.boolexp);
             msj = msj + "digraph G {\nnode [style=filled];\n";
             LinkedList<functionIndex> fn = p.action_obj.fnList;
             /*genero el objeto que tiene la referencia de las funciones*/
