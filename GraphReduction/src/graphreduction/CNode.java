@@ -141,6 +141,21 @@ public class CNode
     {
 	m_isId = true;
     }
+    
+    public String defsToString(){
+        String ss="";
+        for(String str:getDefs()){
+            ss=ss+str+" ";
+        }
+        return ss;
+    }
+    public String usesToString(){
+        String ss="";
+        for(String str:getUses()){
+            ss=ss+str+" ";
+        }
+        return ss;
+    }
 
     /**
      * @Param in_Node is the element wanted to conccatenate with the actual

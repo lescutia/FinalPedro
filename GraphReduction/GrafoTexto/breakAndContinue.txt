@@ -1,0 +1,71 @@
+digraph G {
+node [style=filled];
+"0: 45: start 
+defs : [] uses : []"->"1: 1: int i 
+defs : [] uses : []"
+"1: 1: int i 
+defs : [] uses : []"->"2: 2: float number 
+defs : [] uses : []"
+"2: 2: float number 
+defs : [] uses : []"->"3: 3: float sum 
+defs : [] uses : []"
+"3: 3: float sum 
+defs : [] uses : []"->"4: 8: 0 <- sum 
+defs : [sum] uses : []"
+"4: 8: 0 <- sum 
+defs : [sum] uses : []"->"5: 12: 1 <- i 
+defs : [i] uses : []"
+"5: 12: 1 <- i 
+defs : [i] uses : []"->"6: 39: WHILE i<=10 
+defs : [] uses : [i]"
+"6: 39: WHILE i<=10 
+defs : [] uses : [i]"[color=coral][shape=rectangle]
+"6: 39: WHILE i<=10 
+defs : [] uses : [i]"->"7: 18:  cout **``enter a number ``** 
+defs : [] uses : []"
+"6: 39: WHILE i<=10 
+defs : [] uses : [i]"[color=coral][shape=rectangle]
+"6: 39: WHILE i<=10 
+defs : [] uses : [i]"->"15: 40:  
+defs : [] uses : []"
+"7: 18:  cout **``enter a number ``** 
+defs : [] uses : []"->"8: 20:  cout **i** 
+defs : [] uses : [i]"
+"8: 20:  cout **i** 
+defs : [] uses : [i]"->"9: 22:  cin number 
+defs : [number] uses : []"
+"9: 22:  cin number 
+defs : [number] uses : []"->"10: 28: IF number<0 
+defs : [] uses : [number]"
+"10: 28: IF number<0 
+defs : [] uses : [number]"[color=coral][shape=rectangle]
+"10: 28: IF number<0 
+defs : [] uses : [number]"->"11: 27: continue while0 
+defs : [] uses : []"
+"10: 28: IF number<0 
+defs : [] uses : [number]"[color=coral][shape=rectangle]
+"10: 28: IF number<0 
+defs : [] uses : [number]"->"12: 30:  
+defs : [] uses : []"
+"11: 27: continue while0 
+defs : [] uses : []"->"6: 39: WHILE i<=10 
+defs : [] uses : [i]"
+"15: 40:  
+defs : [] uses : []"->"16: 42:  cout **sum** 
+defs : [] uses : [sum]"
+"16: 42:  cout **sum** 
+defs : [] uses : [sum]"->"17: 44: return 0 
+defs : [] uses : []"
+"17: 44: return 0 
+defs : [] uses : []"->"18: 46: end 
+defs : [] uses : []"
+"12: 30:  
+defs : [] uses : []"->"13: 36: sum+number <- sum 
+defs : [sum] uses : [number, sum]"
+"13: 36: sum+number <- sum 
+defs : [sum] uses : [number, sum]"->"14: 38: i++ 
+defs : [i] uses : [i]"
+"14: 38: i++ 
+defs : [i] uses : [i]"->"6: 39: WHILE i<=10 
+defs : [] uses : [i]"
+}

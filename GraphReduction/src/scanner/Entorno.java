@@ -143,6 +143,8 @@ public class Entorno extends javax.swing.JFrame
     /*cadena que se usa para el graphviz*/
     String msj = "";
     String mm;
+    String allDefs="";
+    String allUses="";
     /*variable del nombre del archivo*/
     String fileName;
 
@@ -205,7 +207,7 @@ public class Entorno extends javax.swing.JFrame
                 mm = mm.replace("%size%", labels.size() + "");
                 labels.clear();
                 added.clear();
-		
+		mm=mm+allDefs+allUses;
                 write("/Salidas/" + fileName + "_" + c.getName(), mm);
                 mm = "";
                 /*LOS GRAFOS DEL CGRAPHMANAGER TIENEN LAS REFERENCIAS A LAS CABEZAS*/
@@ -241,12 +243,18 @@ public class Entorno extends javax.swing.JFrame
     public void explore(CNode n) 
     {
 	String m = "";
+        String defs="";
+        String uses="";
 	String m2 = "";
 	
         if (n.m_pLeftNode != null && n.m_pRightNode == null && !n.m_GExplored) 
 	{
-            m = "" /* + n.getMappedId()
+            m = ""  + /*n.getMappedId()
                     + " " */+ n.m_pLeftNode.getMappedId() + "\n";
+            defs = ""  +/* n.getMappedId()
+                    + " " + */n.defsToString() + "\n";
+            uses = ""  + /*n.getMappedId()
+                    + " " + */n.usesToString()+ "\n";
 	    m2 = ""  + n.getId()
                     + " " + n.m_pLeftNode.getId() + "\n";
             labels.add(n.getId());
@@ -263,13 +271,19 @@ public class Entorno extends javax.swing.JFrame
              if (!band) {
                 msj = msj + getNodeString(n,n.m_pLeftNode,false);
                 mm = mm + m;
+                allDefs=allDefs+defs;
+                allUses=allUses+uses;
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
         }
 	else if (n.m_pRightNode != null) {
-            m = "" /* + n.getMappedId()
-                    + " " */ + n.m_pLeftNode.getMappedId() + " " + n.m_pRightNode.getMappedId() + "\n";
+            m = ""  + /*n.getMappedId()
+                    + " "  +*/ n.m_pLeftNode.getMappedId() + " " + n.m_pRightNode.getMappedId() + "\n";
+            defs = ""  + /*n.getMappedId()
+                    + " " +*/ n.defsToString() + "\n";
+            uses = ""  + /*n.getMappedId()
+                    + " " + */n.usesToString()+ "\n";
 	    m2 = ""  + n.getId()
                     +  + n.m_pLeftNode.getId() + " " + n.m_pRightNode.getId() + "\n";
             labels.add(n.getId());
@@ -286,6 +300,8 @@ public class Entorno extends javax.swing.JFrame
                 msj = msj + getNodeString(n,n.m_pLeftNode,true);
                 msj = msj + getNodeString(n,n.m_pRightNode,true);
                 mm = mm + m;
+                allDefs=allDefs+defs;
+                allUses=allUses+uses;
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
@@ -294,6 +310,8 @@ public class Entorno extends javax.swing.JFrame
 	else if( !n.m_GExplored )
 	{
 	    mm += "\n";
+            allDefs+="\n";
+            allUses+="\n";
 	}
     }
     

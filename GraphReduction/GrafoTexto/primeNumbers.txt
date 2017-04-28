@@ -1,0 +1,97 @@
+digraph G {
+node [style=filled];
+"0: 59: start 
+defs : [] uses : []"->"1: 1: int n 
+defs : [] uses : []"
+"1: 1: int n 
+defs : [] uses : []"->"2: 2: int c 
+defs : [] uses : []"
+"2: 2: int c 
+defs : [] uses : []"->"3: 3: int d 
+defs : [] uses : []"
+"3: 3: int d 
+defs : [] uses : []"->"4: 6:  cout **``enter a number\n``** 
+defs : [] uses : []"
+"4: 6:  cout **``enter a number\n``** 
+defs : [] uses : []"->"5: 8:  cin n 
+defs : [n] uses : []"
+"5: 8:  cin n 
+defs : [n] uses : []"->"6: 55: IF n=2 
+defs : [] uses : [n]"
+"6: 55: IF n=2 
+defs : [] uses : [n]"[color=coral][shape=rectangle]
+"6: 55: IF n=2 
+defs : [] uses : [n]"->"7: 14:  cout **``Prime number.\n``** 
+defs : [] uses : []"
+"6: 55: IF n=2 
+defs : [] uses : [n]"[color=coral][shape=rectangle]
+"6: 55: IF n=2 
+defs : [] uses : [n]"->"11: 19: 2 <- c 
+defs : [c] uses : []"
+"7: 14:  cout **``Prime number.\n``** 
+defs : [] uses : []"->"8: 56:  
+defs : [] uses : []"
+"8: 56:  
+defs : [] uses : []"->"9: 58: return 0 
+defs : [] uses : []"
+"9: 58: return 0 
+defs : [] uses : []"->"10: 60: end 
+defs : [] uses : []"
+"11: 19: 2 <- c 
+defs : [c] uses : []"->"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"
+"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"[color=coral][shape=rectangle]
+"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"->"13: 31: modulo( n,c ) <- d 
+defs : [d] uses : [c, n]"
+"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"[color=coral][shape=rectangle]
+"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"->"16: 43:  
+defs : [] uses : []"
+"13: 31: modulo( n,c ) <- d 
+defs : [d] uses : [c, n]"->"14: 37: IF d=0 
+defs : [] uses : [d]"
+"14: 37: IF d=0 
+defs : [] uses : [d]"[color=coral][shape=rectangle]
+"14: 37: IF d=0 
+defs : [] uses : [d]"->"15: 36: break while0 
+defs : [] uses : []"
+"14: 37: IF d=0 
+defs : [] uses : [d]"[color=coral][shape=rectangle]
+"14: 37: IF d=0 
+defs : [] uses : [d]"->"21: 39:  
+defs : [] uses : []"
+"15: 36: break while0 
+defs : [] uses : []"->"16: 43:  
+defs : [] uses : []"
+"16: 43:  
+defs : [] uses : []"->"17: 53: IF c!=n 
+defs : [] uses : [c, n]"
+"17: 53: IF c!=n 
+defs : [] uses : [c, n]"[color=coral][shape=rectangle]
+"17: 53: IF c!=n 
+defs : [] uses : [c, n]"->"18: 49:  cout **``Not prime.\n``** 
+defs : [] uses : []"
+"17: 53: IF c!=n 
+defs : [] uses : [c, n]"[color=coral][shape=rectangle]
+"17: 53: IF c!=n 
+defs : [] uses : [c, n]"->"20: 52:  cout **``Prime number.\n``** 
+defs : [] uses : []"
+"18: 49:  cout **``Not prime.\n``** 
+defs : [] uses : []"->"19: 54:  
+defs : [] uses : []"
+"19: 54:  
+defs : [] uses : []"->"8: 56:  
+defs : [] uses : []"
+"20: 52:  cout **``Prime number.\n``** 
+defs : [] uses : []"->"19: 54:  
+defs : [] uses : []"
+"21: 39:  
+defs : [] uses : []"->"22: 41: c++ 
+defs : [c] uses : [c]"
+"22: 41: c++ 
+defs : [c] uses : [c]"->"12: 42: WHILE c<=n-1 
+defs : [] uses : [c, n]"
+}

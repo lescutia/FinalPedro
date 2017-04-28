@@ -1,0 +1,65 @@
+digraph G {
+node [style=filled];
+"0: 8: imprimir(n) 
+defs : [n] uses : []"->"1: 3:  cout **``imprime\n``** 
+defs : [] uses : []"
+"1: 3:  cout **``imprime\n``** 
+defs : [] uses : []"->"2: 5:  cout **n** 
+defs : [] uses : [n]"
+"2: 5:  cout **n** 
+defs : [] uses : [n]"->"3: 6: end function 
+defs : [] uses : []"
+"0: 38: start 
+defs : [] uses : []"->"1: 10: int a 
+defs : [] uses : []"
+"1: 10: int a 
+defs : [] uses : []"->"2: 11: int i 
+defs : [] uses : []"
+"2: 11: int i 
+defs : [] uses : []"->"3: 14:  cout **``cuantas veces necesitas imprimir?``** 
+defs : [] uses : []"
+"3: 14:  cout **``cuantas veces necesitas imprimir?``** 
+defs : [] uses : []"->"4: 16:  cin a 
+defs : [a] uses : []"
+"4: 16:  cin a 
+defs : [a] uses : []"->"5: 34: IF a=0 
+defs : [] uses : [a]"
+"5: 34: IF a=0 
+defs : [] uses : [a]"[color=coral][shape=rectangle]
+"5: 34: IF a=0 
+defs : [] uses : [a]"->"6: 22:  cout **``no se imprimirá nada``** 
+defs : [] uses : []"
+"5: 34: IF a=0 
+defs : [] uses : [a]"[color=coral][shape=rectangle]
+"5: 34: IF a=0 
+defs : [] uses : [a]"->"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"
+"6: 22:  cout **``no se imprimirá nada``** 
+defs : [] uses : []"->"7: 35:  
+defs : [] uses : []"
+"7: 35:  
+defs : [] uses : []"->"8: 37: return 0 
+defs : [] uses : []"
+"8: 37: return 0 
+defs : [] uses : []"->"9: 39: end 
+defs : [] uses : []"
+"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"[color=coral][shape=rectangle]
+"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"->"11: 29: imprimir( a ) 
+defs : [] uses : [a]"
+"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"[color=coral][shape=rectangle]
+"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"->"13: 33:  
+defs : [] uses : []"
+"11: 29: imprimir( a ) 
+defs : [] uses : [a]"->"12: 31: i++ 
+defs : [i] uses : [i]"
+"12: 31: i++ 
+defs : [i] uses : [i]"->"10: 32: WHILE i<a 
+defs : [] uses : [a, i]"
+"13: 33:  
+defs : [] uses : []"->"7: 35:  
+defs : [] uses : []"
+}

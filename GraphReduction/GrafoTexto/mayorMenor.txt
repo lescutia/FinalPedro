@@ -1,0 +1,59 @@
+digraph G {
+node [style=filled];
+"0: 32: start 
+defs : [] uses : []"->"1: 1: int number1 
+defs : [] uses : []"
+"1: 1: int number1 
+defs : [] uses : []"->"2: 2: int number2 
+defs : [] uses : []"
+"2: 2: int number2 
+defs : [] uses : []"->"3: 5:  cout **``Enter two integers: ``** 
+defs : [] uses : []"
+"3: 5:  cout **``Enter two integers: ``** 
+defs : [] uses : []"->"4: 7:  cin number1 
+defs : [number1] uses : []"
+"4: 7:  cin number1 
+defs : [number1] uses : []"->"5: 9:  cin number2 
+defs : [number2] uses : []"
+"5: 9:  cin number2 
+defs : [number2] uses : []"->"6: 28: IF number1=number2 
+defs : [] uses : [number1, number2]"
+"6: 28: IF number1=number2 
+defs : [] uses : [number1, number2]"[color=coral][shape=rectangle]
+"6: 28: IF number1=number2 
+defs : [] uses : [number1, number2]"->"7: 15:  cout **``son iguales``** 
+defs : [] uses : []"
+"6: 28: IF number1=number2 
+defs : [] uses : [number1, number2]"[color=coral][shape=rectangle]
+"6: 28: IF number1=number2 
+defs : [] uses : [number1, number2]"->"11: 26: IF number1>number2 
+defs : [] uses : [number1, number2]"
+"7: 15:  cout **``son iguales``** 
+defs : [] uses : []"->"8: 29:  
+defs : [] uses : []"
+"8: 29:  
+defs : [] uses : []"->"9: 31: return 0 
+defs : [] uses : []"
+"9: 31: return 0 
+defs : [] uses : []"->"10: 33: end 
+defs : [] uses : []"
+"11: 26: IF number1>number2 
+defs : [] uses : [number1, number2]"[color=coral][shape=rectangle]
+"11: 26: IF number1>number2 
+defs : [] uses : [number1, number2]"->"12: 22:  cout **``number 1 es mayor``** 
+defs : [] uses : []"
+"11: 26: IF number1>number2 
+defs : [] uses : [number1, number2]"[color=coral][shape=rectangle]
+"11: 26: IF number1>number2 
+defs : [] uses : [number1, number2]"->"14: 25:  cout **``number 2 es mayor``** 
+defs : [] uses : []"
+"12: 22:  cout **``number 1 es mayor``** 
+defs : [] uses : []"->"13: 27:  
+defs : [] uses : []"
+"13: 27:  
+defs : [] uses : []"->"8: 29:  
+defs : [] uses : []"
+"14: 25:  cout **``number 2 es mayor``** 
+defs : [] uses : []"->"13: 27:  
+defs : [] uses : []"
+}

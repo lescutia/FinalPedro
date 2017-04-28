@@ -1,0 +1,49 @@
+digraph G {
+node [style=filled];
+"0: 32: start 
+defs : [] uses : []"->"1: 1: int number 
+defs : [] uses : []"
+"1: 1: int number 
+defs : [] uses : []"->"2: 2: float factorial 
+defs : [] uses : []"
+"2: 2: float factorial 
+defs : [] uses : []"->"3: 5:  cout **``Enter an integer: \n``** 
+defs : [] uses : []"
+"3: 5:  cout **``Enter an integer: \n``** 
+defs : [] uses : []"->"4: 7:  cin number 
+defs : [number] uses : []"
+"4: 7:  cin number 
+defs : [number] uses : []"->"5: 11: 1 <- factorial 
+defs : [factorial] uses : []"
+"5: 11: 1 <- factorial 
+defs : [factorial] uses : []"->"6: 24: WHILE number>0 
+defs : [] uses : [number]"
+"6: 24: WHILE number>0 
+defs : [] uses : [number]"[color=coral][shape=rectangle]
+"6: 24: WHILE number>0 
+defs : [] uses : [number]"->"7: 21: factorial*number <- factorial 
+defs : [factorial] uses : [number, factorial]"
+"6: 24: WHILE number>0 
+defs : [] uses : [number]"[color=coral][shape=rectangle]
+"6: 24: WHILE number>0 
+defs : [] uses : [number]"->"9: 25:  
+defs : [] uses : []"
+"7: 21: factorial*number <- factorial 
+defs : [factorial] uses : [number, factorial]"->"8: 23: number-- 
+defs : [number] uses : [number]"
+"8: 23: number-- 
+defs : [number] uses : [number]"->"6: 24: WHILE number>0 
+defs : [] uses : [number]"
+"9: 25:  
+defs : [] uses : []"->"10: 27:  cout **``Factorial= \n``** 
+defs : [] uses : []"
+"10: 27:  cout **``Factorial= \n``** 
+defs : [] uses : []"->"11: 29:  cout **factorial** 
+defs : [] uses : [factorial]"
+"11: 29:  cout **factorial** 
+defs : [] uses : [factorial]"->"12: 31: return 0 
+defs : [] uses : []"
+"12: 31: return 0 
+defs : [] uses : []"->"13: 33: end 
+defs : [] uses : []"
+}
