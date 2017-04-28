@@ -18,7 +18,7 @@ System.out.println("Error en la linea "+(s.right+1)+"Columna"+s.left+" .Identifi
 /*MORRONGOS, ESTAS SON LAS VARIABLES GLOBALES  QUE USO*/
 action code{:
 ArrayList<CNode> l=new ArrayList<CNode>();
-ArrayList<String> boolexp=new ArrayList<String>();
+ArrayList<BooleanExpresion> boolexp=new ArrayList<BooleanExpresion>();
 LinkedList<CNode> list=new LinkedList<CNode>();
 LinkedList<CNode> breakList=new LinkedList<CNode>();
 LinkedList<CNode> continueList=new LinkedList<CNode>();
@@ -389,7 +389,7 @@ stmt            ::= assignExp:ae SEMICOLON
                 {: 
 
                         
-                         boolexp.add(e.getSingleCodeLine());  
+                         boolexp.add(new BooleanExpresion(e.getSingleCodeLine(),aright+1));  
                          /*UNO LA LISTA DE VARDECL Y STMTLIST*/
                          vdl.addAll(sl);
                          /*UNO TODOS LOS NODOS DEL LIS.T*/
@@ -409,7 +409,7 @@ stmt            ::= assignExp:ae SEMICOLON
                 | FOR:a {:a="while"+whileLabel; actualWhile=a; whileLabel++; whileNames.push(a);:} LPAREN exp:e1 SEMICOLON exp:e2 SEMICOLON exp:e3 RPAREN LCURLY varDeclList:vdl stmtList:sl RCURLY
                 {:
                        // RESULT=new CNode(label(),"FOR ");
-                        boolexp.add(e2.getSingleCodeLine());  
+                        boolexp.add(new BooleanExpresion(e2.getSingleCodeLine(),aright+1));  
                          /*UNO LA LISTA DE VARDECL Y STMTLIST*/
                          vdl.addAll(sl);
                          /*UNO TODOS LOS NODOS DEL LIS.T*/
@@ -468,7 +468,7 @@ stmt            ::= assignExp:ae SEMICOLON
 /*-------------------------------------IF SIN ELSE  ----------------------------- */
 CIF1 ::=   IF:ii   LPAREN exp:e RPAREN LCURLY  varDeclList:vdl stmtList:sl RCURLY
 {:                    
-                      boolexp.add(e.getSingleCodeLine());
+                      boolexp.add(new BooleanExpresion(e.getSingleCodeLine(),iiright+1));
                       vdl.addAll(sl);
                       for(int i=0;i<vdl.size();i++){
                         if(i>0){
@@ -488,7 +488,7 @@ CIF1 ::=   IF:ii   LPAREN exp:e RPAREN LCURLY  varDeclList:vdl stmtList:sl RCURL
 /*-------------------------------------IF CON ELSE  ----------------------------- */
 CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURLY ELSE LCURLY varDeclList:vdle stmtList:sle RCURLY 
                 {:
-                        boolexp.add(e.getSingleCodeLine());
+                        boolexp.add(new BooleanExpresion(e.getSingleCodeLine(),iiright+1));
                         vdlt.addAll(slt);
                         vdle.addAll(sle);
                         for(int i=0;i<vdlt.size();i++){
@@ -517,7 +517,7 @@ CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURL
 /*-------------------------------------ASIGNACION  ----------------------------- */
 assignExp       ::= loc:lc ASSIGN exp:e
                 {: 
-                RESULT=new CNode(label(),lc.getSingleCodeLine()+"="+e.getSingleCodeLine());
+                RESULT=new CNode(label(),lc.getSingleCodeLine()+"->"+e.getSingleCodeLine());
                 RESULT.mergeUses(e);
                 RESULT.addDef(lc.getSingleCodeLine());
                 :}

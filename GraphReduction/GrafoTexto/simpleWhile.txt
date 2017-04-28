@@ -1,13 +1,13 @@
 digraph G {
 node [style=filled];
 "33: start"->"1: int i"
-"1: int i"->"6: i=10"
-"6: i=10"->"29: WHILE i>0"
+"1: int i"->"6: i->10"
+"6: i->10"->"29: WHILE i>0"
 "29: WHILE i>0"->"12:  cout **``hello``**"
 "29: WHILE i>0"->"30: "
 "12:  cout **``hello``**"->"14:  cout **i**"
-"14:  cout **i**"->"20: i=i-1"
-"20: i=i-1"->"26: IF i=6"
+"14:  cout **i**"->"20: i->i-1"
+"20: i->i-1"->"26: IF i=6"
 "26: IF i=6"->"25: break while0"
 "26: IF i=6"->"28: "
 "25: break while0"->"30: "
