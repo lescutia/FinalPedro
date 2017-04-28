@@ -517,7 +517,7 @@ CIF2 ::=    IF:ii LPAREN exp:e RPAREN LCURLY varDeclList:vdlt stmtList:slt RCURL
 /*-------------------------------------ASIGNACION  ----------------------------- */
 assignExp       ::= loc:lc ASSIGN exp:e
                 {: 
-                RESULT=new CNode(label(),lc.getSingleCodeLine()+"->"+e.getSingleCodeLine());
+                RESULT=new CNode(label(),e.getSingleCodeLine()+" <- "+lc.getSingleCodeLine());
                 RESULT.mergeUses(e);
                 RESULT.addDef(lc.getSingleCodeLine());
                 :}

@@ -258,9 +258,9 @@ public class Entorno extends javax.swing.JFrame
                 }
             }
             added.add(m2);
-            if (!band) {
+             if (!band) {
+                msj = msj + getNodeString(n,n.m_pLeftNode,false);
                 mm = mm + m;
-                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getMappedId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
             }
             n.m_GExplored = true;
             explore(n.m_pLeftNode);
@@ -281,8 +281,8 @@ public class Entorno extends javax.swing.JFrame
             }
             added.add(m2);
             if (!band) {
-                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pLeftNode.getMappedId() + ": " + n.m_pLeftNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
-                msj = msj + "\"" + n.getMappedId() + ": " + n.getSingleCodeLine().replaceAll("\"", "``") + "\"" + "->" + "\"" + n.m_pRightNode.getMappedId() + ": " + n.m_pRightNode.getSingleCodeLine().replaceAll("\"", "``") + "\"\n";
+                msj = msj + getNodeString(n,n.m_pLeftNode,true);
+                msj = msj + getNodeString(n,n.m_pRightNode,true);
                 mm = mm + m;
             }
             n.m_GExplored = true;
@@ -293,6 +293,24 @@ public class Entorno extends javax.swing.JFrame
 	{
 	    mm += "\n";
 	}
+    }
+    
+    public String getNodeString(CNode n1, CNode n2,boolean color){
+        String cad="";
+        if(color){
+        cad=cad+"\"" + n1.getMappedId() + ": " + n1.getId()+": "+
+                n1.getSingleCodeLine().replaceAll("\"", "``") + 
+                " \ndefs : "+n1.m_lstDefs.toString()+" uses : "+n1.m_lstUses+"\""+
+                "[color=coral][shape=rectangle]\n";
+        }
+        cad = cad+"\"" + n1.getMappedId() + ": " + n1.getId()+": "+
+                n1.getSingleCodeLine().replaceAll("\"", "``") + 
+                " \ndefs : "+n1.m_lstDefs.toString()+" uses : "+n1.m_lstUses+"\"" + "->" + 
+                "\"" + n2.getMappedId() + ": " +  n2.getId() + ": "+
+                n2.getSingleCodeLine().replaceAll("\"", "``") + 
+                " \ndefs : "+n2.m_lstDefs.toString()+" uses : "+n2.m_lstUses+ "\"\n";
+        return cad;
+        
     }
 
     /**
