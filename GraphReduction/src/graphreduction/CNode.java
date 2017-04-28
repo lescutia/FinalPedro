@@ -44,6 +44,20 @@ public class CNode
     int m_nType;
     
     int m_iMappedId;
+    /**
+     * En esta lista mando los defs del nodo
+     * @return 
+     */
+    public ArrayList<String> getDefs() {
+        return m_lstDefs;
+    }
+    /**
+     * en esta lista les mando los uses del nodo
+     * @return 
+     */
+    public ArrayList<String> getUses() {
+        return m_lstUses;
+    }
     
     /*
     boolean for make the graph

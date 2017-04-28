@@ -9,7 +9,7 @@ import graphreduction.CNode;
 import java.util.LinkedList;
 
 /**
- *
+ * Esta estructura contiene el nombre de la función, el indice de la función y el nodo final
  * @author Humanoide
  */
 public class functionIndex

@@ -9,7 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- *
+ *Esta clase sirve para tomar un mapa con los nombres de las funciones
+ * asociados al nodo inicial de la función
  * @author Humanoide
  */
 public class CGraphManager {

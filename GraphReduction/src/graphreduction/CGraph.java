@@ -15,7 +15,10 @@ public class CGraph
     {
         
     }
-
+    /**
+     * regresa el nodo inicial de la estructura de la función o main
+     * @return 
+     */
     public CNode getBeginNode() {
         return m_BeginNode;
     }
